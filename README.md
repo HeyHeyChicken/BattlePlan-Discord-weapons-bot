@@ -18,7 +18,7 @@
 
 1. Click here : [Install EBP's Discord server bot](https://discord.com/oauth2/authorize?client_id=1295696799839031318&permissions=0&integration_type=0&scope=bot).
 2. Click on the "Authorize" button.
-3. Create a channel named "Weapons" in your Discord server.
+3. Create a channel named "Weapons" (<img width="20px" src="https://evabattleplan.com/wp-content/uploads/en.png">), or "Armes" (<img width="20px" src="https://evabattleplan.com/wp-content/uploads/fr.png">), or "Armas" (<img width="20px" src="https://evabattleplan.com/wp-content/uploads/es.png">) in your Discord server.
 4. Click on the cog of this channel.
 5. In the "Permission" tab, in the "Advanced permissions" section, Add theses specific permissions to the "EBP - EVA Battle Plan" bot :
    - See the channel
