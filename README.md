@@ -2,10 +2,12 @@
 
 <img src="https://evabattleplan.com/wp-content/uploads/logo-black.png" alt="NOVA" width="300">
 <br><br>
+
 **EBP's Discord weapons bot** is a bot that will automatically update the characteristics of EVA weapons on your Discord server.<br><br>
 
 [![Discord](https://img.shields.io/discord/1113942572818255992?label=Discord&style=flat&logo=discord)](https://discord.gg/4Q8T66z447)
 
+<img width="410px" src="https://raw.githubusercontent.com/HeyHeyChicken/BattlePlan-Discord-weapons-bot/refs/heads/main/.github/screenshot.jpg">
 </div>
 
 ## 👋 Introduction
