@@ -1,0 +1,16 @@
+{
+  "name": "battleplan-discord-weapons-bot",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/HeyHeyChicken/BattlePlan-Discord-weapons-bot"
+  },
+  "author": "Antoine Duval (HeyHeyChicken)",
+  "dependencies": {
+    "axios": "^1.7.7",
+    "discord.js": "^14.16.3",
+    "puppeteer": "^23.5.3"
+  }
+}
