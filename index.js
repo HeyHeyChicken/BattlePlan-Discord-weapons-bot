@@ -1,5 +1,3 @@
-// https://discord.com/oauth2/authorize?client_id=1295696799839031318&permissions=0&integration_type=0&scope=bot
-
 //#region Imports
 
 const puppeteer = require("puppeteer"); // Cette librairie me permet de télécharger les screenshots des armes.
