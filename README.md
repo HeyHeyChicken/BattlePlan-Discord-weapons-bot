@@ -16,9 +16,9 @@
 
 ## 🔧 Prerequisites
 
-[<img src="https://raw.githubusercontent.com/HeyHeyChicken/NOVA/master/resources/nodeJSLogo.png" width="18" /> Node.js](https://nodejs.org/)<br/>
-[<img src="https://raw.githubusercontent.com/HeyHeyChicken/NOVA/master/resources/npmLogo.png" width="18" /> npm](https://npmjs.com/)<br/>
-[<img src="https://raw.githubusercontent.com/HeyHeyChicken/NOVA/master/resources/gitLogo.png" width="18" /> Git](https://git-scm.com/)<br/>
+[<img src="https://raw.githubusercontent.com/HeyHeyChicken/BattlePlan-Discord-weapons-bot/refs/heads/main/.github/nodeJSLogo.png" width="18" /> Node.js](https://nodejs.org/)<br/>
+[<img src="https://raw.githubusercontent.com/HeyHeyChicken/BattlePlan-Discord-weapons-bot/refs/heads/main/.github/npmLogo.png" width="18" /> npm](https://npmjs.com/)<br/>
+[<img src="https://raw.githubusercontent.com/HeyHeyChicken/BattlePlan-Discord-weapons-bot/refs/heads/main/.github/gitLogo.png" width="18" /> Git](https://git-scm.com/)<br/>
 
 ## ⬇️ Installation
 
