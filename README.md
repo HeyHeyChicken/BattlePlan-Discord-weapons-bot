@@ -3,7 +3,7 @@
 <img src="https://evabattleplan.com/wp-content/uploads/logo-black.png" alt="NOVA" width="300">
 <br><br>
 
-**EBP's Discord weapons bot** is a bot that will automatically update the characteristics of EVA weapons on your Discord server.<br><br>
+**EBP's Discord weapons bot** is an open-source bot that will automatically update the characteristics of EVA weapons on your Discord server.<br>
 
 [![Discord](https://img.shields.io/discord/1113942572818255992?label=Discord&style=flat&logo=discord)](https://discord.gg/4Q8T66z447)
 
@@ -13,6 +13,19 @@
 ## 👋 Introduction
 
 **EBP's Discord weapons bot** is an open-source bot that will automatically update the characteristics of EVA weapons on your Discord server.
+
+## 🖥️ Add this bot to your server
+
+1. Click here : [Install EBP's Discord server bot](https://discord.com/oauth2/authorize?client_id=1295696799839031318&permissions=0&integration_type=0&scope=bot).
+2. Click on the "Authorize" button.
+3. Create a channel named "Weapons" in your Discord server.
+4. Click on the cog of this channel.
+5. In the "Permission" tab, in the "Advanced permissions" section, Add theses specific permissions to the "EBP - EVA Battle Plan" bot :
+   - See the channel
+   - Send messages
+   - View old messages
+
+That's it, weapons characteristics will be added/updated every 24 hours. If you would like an immediate test, [ask me](https://discordapp.com/users/195958479394045952).
 
 ## 🔧 Prerequisites
 
