@@ -1,7 +1,7 @@
 {
   "name": "battleplan-discord-weapons-bot",
   "version": "1.0.0",
-  "description": "",
+  "description": "EBP's Discord weapons bot is an open-source bot that will automatically update the characteristics of EVA weapons on your Discord server.",
   "main": "index.js",
   "repository": {
     "type": "git",
