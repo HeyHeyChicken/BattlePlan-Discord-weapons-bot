@@ -1,0 +1,9 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./run/:/usr/src/app/BattlePlan-Discord-weapons-bot
+    environment:
+      - NODE_ENV=development
