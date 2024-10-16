@@ -1,0 +1,7 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - NODE_ENV=development

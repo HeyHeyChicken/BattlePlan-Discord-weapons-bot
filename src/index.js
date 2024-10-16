@@ -97,7 +97,7 @@ async function getOldMessages(channel, limit = 100) {
   try {
     oldMessages = Array.from(await channel.messages.fetch({ limit: limit })); // On récupère les anciens messages envoyés sur le channel.
   } catch (e) {
-    console.error("        Impossible d'accéder aux messages.");
+    console.error("        Impossible d'accéder aux messages.", e);
   }
   return Array.from(oldMessages).map((x) => x[1]);
 }

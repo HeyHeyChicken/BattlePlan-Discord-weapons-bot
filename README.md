@@ -47,7 +47,7 @@ git clone https://github.com/HeyHeyChicken/BattlePlan-Discord-weapons-bot.git
 2. Install packages
 
 ```
-cd BattlePlan-Discord-weapons-bot/src
+cd BattlePlan-Discord-weapons-bot
 ```
 
 ```
@@ -57,6 +57,10 @@ npm install
 ## 🚀 Usage
 
 1. Launch this command.
+
+```
+cd src
+```
 
 ```
 node index.js

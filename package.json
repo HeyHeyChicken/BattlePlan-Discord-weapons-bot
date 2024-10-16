@@ -4,7 +4,8 @@
   "description": "EBP's Discord weapons bot is an open-source bot that will automatically update the characteristics of EVA weapons on your Discord server.",
   "main": "index.js",
   "scripts": {
-    "docker": "docker compose up"
+    "start": "node index.js",
+    "docker": "docker compose build --no-cache; docker compose up"
   },
   "repository": {
     "type": "git",
