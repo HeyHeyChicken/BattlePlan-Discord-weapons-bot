@@ -20,12 +20,15 @@
 2. Click on the "Authorize" button.
 3. Create a channel named "Weapons" (<img width="20px" src="https://evabattleplan.com/wp-content/uploads/en.png">), or "Armes" (<img width="20px" src="https://evabattleplan.com/wp-content/uploads/fr.png">), or "Armas" (<img width="20px" src="https://evabattleplan.com/wp-content/uploads/es.png">) in your Discord server.
 4. Click on the cog of this channel.
-5. In the "Permission" tab, in the "Advanced permissions" section, Add theses specific permissions to the "EBP - EVA Battle Plan" bot :
+5. In the "Permission" tab, in the "Advanced permissions" section, remove all permissions and add this specific permissions to "@everyone" users :
+   - See the channel
+   - Add reactions
+6. In the "Permission" tab, in the "Advanced permissions" section, add theses specific permissions to the "EBP - EVA Battle Plan" bot :
    - See the channel
    - Send messages
+   - Manage messages
    - View old messages
-
-That's it, weapons characteristics will be added/updated every 24 hours. If you would like an immediate test, [ask me](https://discordapp.com/users/195958479394045952).
+7. Use this command to refresh weapons for the first time: `!ebp_refresh`.
 
 ## 🔧 Prerequisites
 
@@ -44,7 +47,7 @@ git clone https://github.com/HeyHeyChicken/BattlePlan-Discord-weapons-bot.git
 2. Install packages
 
 ```
-cd BattlePlan-Discord-weapons-bot
+cd BattlePlan-Discord-weapons-bot/src
 ```
 
 ```

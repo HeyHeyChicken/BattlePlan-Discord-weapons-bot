@@ -1,10 +1,12 @@
 //#region Imports
 
-const puppeteer = require("puppeteer"); // Cette librairie me permet de télécharger les screenshots des armes.
 const { Client, GatewayIntentBits } = require("discord.js"); // Cette librairie me permet de communiquer avec l'API de Discord.
 const axios = require("axios"); // Cette librairie me permet de requêter l'API REST d'EBP - EVA Battle Plan.
-const fs = require("fs"); // Cette librairie me permet de travailler avec des fichiers locaux.
 const path = require("path"); // Cette  librairie me permet de créer des chemins d'accès liés à l'OS.
+const HTTP = require("http");
+
+const Screenshoter = require("./screenshoter");
+const Settings = require("./settings");
 
 //#endregion
 
@@ -18,34 +20,29 @@ const WEAPONS_CHANNEL_NAMES = [
   ["rmes", "fr"],
   ["rmas", "es"],
 ]; // Le bot ne travaillera que sur les channels qui contiennent l'élément 0. L'élément 1 représente la langue devinée du channel.
+const SCREENSHOTER = new Screenshoter();
+const SETTINGS = new Settings();
+const WEB_PORT = 3002;
 
 //#endregion
 
-// On récupère les réglages du projet.
-const SETTINGS_PATH = path.join(__dirname, "settings.json");
-if (!fs.existsSync(SETTINGS_PATH)) {
-  fs.writeFileSync(
-    SETTINGS_PATH,
-    JSON.stringify(
-      {
-        discord_bot_token: "",
-      },
-      null,
-      2
-    )
-  );
-}
-const SETTINGS = JSON.parse(fs.readFileSync(SETTINGS_PATH, "utf8"));
-if (!SETTINGS.discord_bot_token) {
-  console.error(
-    'Vous devez définir la valeur de "discord_bot_token" dans le fichier "settings.json".'
-  );
-  return;
-}
+//#region Web server
 
-// On s'assure qu'il existe un dossier pour stocker les captures d'écran de chaque armes.
-const SCREENSHOTS_FOLDER = path.join(__dirname, "screenshots");
-fs.mkdirSync(SCREENSHOTS_FOLDER, { recursive: true });
+const SERVER = HTTP.createServer((req, res) => {
+  if (req.url === "/") {
+    res.writeHead(200, { "Content-Type": "text/html" });
+    res.end("EBP - EVA Battle Plan's Discord bot is <b>online</b>.");
+  } else {
+    res.writeHead(404, { "Content-Type": "text/plain" });
+    res.end("Not Found");
+  }
+});
+
+SERVER.listen(WEB_PORT, () => {
+  console.log("Serveur HTTP en écoute sur le port " + WEB_PORT + ".");
+});
+
+//#endregion
 
 const CLIENT = new Client({
   intents: [
@@ -62,49 +59,55 @@ CLIENT.on("messageCreate", async (message) => {
 
   // On vérifie que l'utilisateur a les permissions d'administrateur.
   if (
-    message.content === "/ebp_refresh" &&
+    message.content === "!ebp_refresh" &&
     message.member.permissions.has("ADMINISTRATOR")
   ) {
     const SERVERS = Array.from(CLIENT.guilds.cache);
     const SERVER = Array.from(SERVERS)
       .map((x) => x[1])
       .find((x) => x.id == message.guildId);
-    if (SERVER) {
-      console.log(message.author.globalName + " asked for a manual refresh.");
-      refresh(SERVER);
+
+    const CHANNEL = Array.from(
+      SERVER.channels.cache.filter((channel) => channel.id == message.channelId)
+    ).map((x) => x[1]);
+    if (SERVER && CHANNEL.length == 1) {
+      console.log(
+        '"' +
+          message.author.globalName +
+          '" asked for a manual refresh for the: "' +
+          SERVER.name +
+          '" server.'
+      );
+      await message.channel.bulkDelete(await getOldMessages(CHANNEL[0]));
+      setTimeout(() => {
+        refresh(SERVER);
+      }, 5000);
     }
   }
 });
 
 /**
- * Cette fonction permet de récupérer les captures d'écran des pages d'armes.
- * @param {*} weapons Liste des armes et des URLs associées par langue.
+ * Cette fonction retourne les anciens messages d'un salon.
+ * @param {*} channel Salon à analyser.
+ * @param {*} limit Nombre de messages maximim à récupérer.
+ * @returns Liste des anciens messages du salon.
  */
-async function download_screenshots(weapons) {
-  console.log("Downloading screenshots...");
-  const SCREEN_WIDTH = 1920 * 0.9;
-  const SCREEN_HEIGHT = 1080 * 0.9;
-  const BROWSER = await puppeteer.launch({
-    headless: "shell", // Met à true pour ne pas afficher le navigateur
-    defaultViewport: null, // Nécessaire pour définir la taille
-  });
-  const page = await BROWSER.newPage();
-  await page.setViewport({ width: SCREEN_WIDTH, height: SCREEN_HEIGHT });
-  for (let i = 0; i < weapons.length; i++) {
-    await page.goto(weapons[i][1], { waitUntil: "networkidle2" });
-
-    // Prends une capture d'écran
-    await page.screenshot({
-      path: weapons[i][0],
-      fullPage: false,
-    });
+async function getOldMessages(channel, limit = 100) {
+  let oldMessages = [];
+  try {
+    oldMessages = Array.from(await channel.messages.fetch({ limit: limit })); // On récupère les anciens messages envoyés sur le channel.
+  } catch (e) {
+    console.error("        Impossible d'accéder aux messages.");
   }
-  await BROWSER.close();
-  console.log("Screenshots downloaded.");
+  return Array.from(oldMessages).map((x) => x[1]);
 }
 
+/**
+ * Cette fonction rafraichit les informations des armes dans un serveur.
+ * @param {*} server Serveur à rafraichir.
+ */
 async function refresh(server) {
-  console.log(`Serveur: ${server.name}`);
+  console.log(`    Serveur: ${server.name}`);
   // On récupère les channels qui ont un nom présent dans "WEAPONS_CHANNEL_NAMES".
   const WEAPONS_CHANNELS = Array.from(
     server.channels.cache.filter(
@@ -121,24 +124,17 @@ async function refresh(server) {
       CHANNEL[1].name.toLowerCase().includes(x[0].toLowerCase())
     )[1]; // On récupère la langue du channel.
 
-    console.log(`    Channel: ${CHANNEL[1].name}`);
+    console.log(`        Channel: ${CHANNEL[1].name}`);
 
-    let oldMessages = [];
-    try {
-      oldMessages = Array.from(await CHANNEL[1].messages.fetch({ limit: 100 })); // On récupère les anciens messages envoyés sur le channel.
-    } catch (e) {
-      console.error("        Impossible d'accéder aux messages.");
-    }
+    let OLD_MESSAGES = await getOldMessages(CHANNEL[1]);
 
     // On filtre les anciens messages pour ne garder que les messages envoyés par le BOT.
-    const OLD_BOT_MESSAGES = Array.from(oldMessages)
-      .map((x) => x[1])
-      .filter(
-        (x) =>
-          x.author.bot == true &&
-          x.author.username == CLIENT.user.username &&
-          x.author.discriminator == CLIENT.user.discriminator
-      );
+    const OLD_BOT_MESSAGES = OLD_MESSAGES.filter(
+      (x) =>
+        x.author.bot == true &&
+        x.author.username == CLIENT.user.username &&
+        x.author.discriminator == CLIENT.user.discriminator
+    );
     let nbMessageSend = 0; // Cette variable représente le nombre de messages envoyés sur le channel.
 
     for (const WEAPON of weapons) {
@@ -179,17 +175,14 @@ async function refresh(server) {
             content: MESSAGE,
             files: [
               path.join(
-                SCREENSHOTS_FOLDER,
+                SCREENSHOTER.screenshotsFolder,
                 (LANGUAGE + "_" + WEAPON.name).toUpperCase() + ".png"
               ),
             ],
           });
           nbMessageSend++;
         } catch (e) {
-          console.error(
-            "        Impossible d'envoyer un message.",
-            e.rawError.message
-          );
+          console.error("        Impossible d'envoyer un message.", e);
         }
       }
     }
@@ -212,30 +205,17 @@ async function refresh(server) {
  * Fonction principale.
  */
 async function loop() {
-  // On prépare la liste des URLs à scanner pour créer les screenshots de chaque armes, pour chaque langues.
-  const SCREENSHOT_URLS = [];
-  for (const NAME of WEAPONS_CHANNEL_NAMES) {
-    for (let weaponIndex = 0; weaponIndex < weapons.length; weaponIndex++) {
-      SCREENSHOT_URLS.push([
-        path.join(
-          SCREENSHOTS_FOLDER,
-          (NAME[1] + "_" + weapons[weaponIndex].name).toUpperCase() + ".png"
-        ),
-        weaponsUrls[NAME[1]] +
-          "?w=" +
-          weapons[weaponIndex].name.toLowerCase().replaceAll("-", " ") +
-          "&discord_bot",
-      ]);
-    }
-  }
-
-  //await download_screenshots(SCREENSHOT_URLS); // On télécharge les screenshots.
+  console.log("Loop start...");
+  await SCREENSHOTER.download_screenshots(
+    SCREENSHOTER.prepare_urls(weapons, weaponsUrls, WEAPONS_CHANNEL_NAMES)
+  ); // On télécharge les screenshots.
 
   // On boucle sur les serveurs Discord utilisant le bot.
-  const SERVERS = Array.from(CLIENT.guilds.cache);
+  const SERVERS = Array.from(CLIENT.guilds.cache).map((server) => server[1]);
   for (const SERVER of SERVERS) {
-    refresh(SERVER[1]);
+    refresh(SERVER);
   }
+  console.log("Loop end.");
 }
 
 CLIENT.once("ready", async () => {
@@ -254,4 +234,4 @@ CLIENT.once("ready", async () => {
   });
 });
 
-CLIENT.login(SETTINGS.discord_bot_token);
+CLIENT.login(SETTINGS.settings.discord_bot_token);
