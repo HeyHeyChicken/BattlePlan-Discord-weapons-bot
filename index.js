@@ -194,7 +194,10 @@ async function loop() {
             });
             nbMessageSend++;
           } catch (e) {
-            console.error("        Impossible d'envoyer un message.");
+            console.error(
+              "        Impossible d'envoyer un message.",
+              e.rawError.message
+            );
           }
         }
       }
