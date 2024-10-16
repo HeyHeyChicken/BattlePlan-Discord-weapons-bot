@@ -46,6 +46,7 @@ class Screenshoter {
     const SCREEN_WIDTH = 1920 * 0.9;
     const SCREEN_HEIGHT = 1080 * 0.9;
     const BROWSER = await puppeteer.launch({
+      args: ["--no-sandbox"],
       headless: "shell", // Pour ne pas afficher le navigateur.
       defaultViewport: null, // Nécessaire pour définir la taille.
     });

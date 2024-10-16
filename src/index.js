@@ -22,7 +22,7 @@ const WEAPONS_CHANNEL_NAMES = [
 ]; // Le bot ne travaillera que sur les channels qui contiennent l'élément 0. L'élément 1 représente la langue devinée du channel.
 const SCREENSHOTER = new Screenshoter();
 const SETTINGS = new Settings();
-const WEB_PORT = 3002;
+const WEB_PORT = 3000;
 
 //#endregion
 
