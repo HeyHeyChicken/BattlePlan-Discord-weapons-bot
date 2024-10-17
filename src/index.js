@@ -94,7 +94,11 @@ CLIENT.on("messageCreate", async (message) => {
           SERVER.name +
           '" server.'
       );
-      await message.channel.bulkDelete(await getOldMessages(CHANNEL[0]));
+      try {
+        await message.channel.bulkDelete(await getOldMessages(CHANNEL[0]));
+      } catch (e) {
+        console.error("        Impossible de supprimer les messages.", e);
+      }
       setTimeout(() => {
         refresh(SERVER);
       }, 5000);
