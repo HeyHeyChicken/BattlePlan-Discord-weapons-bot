@@ -96,15 +96,18 @@ CLIENT.on("messageCreate", async (message) => {
       );
       console.log("    Getting old messages...");
       const OLD_MESSAGES = await getOldMessages(CHANNEL[0]);
-      console.log("    Got old messages (" + OLD_MESSAGES.length + ")");
+      console.log("    Got old messages");
+      console.log(OLD_MESSAGES);
       for (let message of OLD_MESSAGES) {
         try {
-          message.delete();
+          await message.delete();
+          console.log("deleted");
         } catch (e) {
           console.error("        Impossible de supprimer le messages.", e);
         }
       }
       setTimeout(() => {
+        console.log("refreshing");
         refresh(SERVER);
       }, 5000);
     }
