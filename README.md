@@ -26,6 +26,7 @@
 6. In the "Permission" tab, in the "Advanced permissions" section, add theses specific permissions to the "EBP - EVA Battle Plan" bot :
    - See the channel
    - Send messages
+   - Attach files
    - Manage messages
    - View old messages
 7. Use this command to refresh weapons for the first time: `!ebp_refresh`.
