@@ -100,7 +100,6 @@ CLIENT.on("messageCreate", async (message) => {
       for (let message of OLD_MESSAGES) {
         try {
           await message.delete();
-          console.log("deleted");
         } catch (e) {
           console.error("        Impossible de supprimer le messages.", e);
         }
