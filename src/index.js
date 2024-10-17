@@ -101,7 +101,10 @@ CLIENT.on("messageCreate", async (message) => {
         try {
           await message.delete();
         } catch (e) {
-          console.error("        Impossible de supprimer le messages.", e);
+          console.error(
+            `        Impossible de supprimer le messages (Server: "${SERVER.name}", channel: "${CHANNEL[0].name}").`,
+            e
+          );
         }
       }
       console.log("refreshing");
@@ -121,7 +124,10 @@ async function getOldMessages(channel, limit = 100) {
   try {
     oldMessages = Array.from(await channel.messages.fetch({ limit: limit })); // On récupère les anciens messages envoyés sur le channel.
   } catch (e) {
-    console.error("        Impossible d'accéder aux messages.", e);
+    console.error(
+      `        Impossible d'accéder aux messages (Channel: "${channel.name}").`,
+      e
+    );
   }
   return Array.from(oldMessages).map((x) => x[1]);
 }
@@ -189,7 +195,10 @@ async function refresh(server) {
           try {
             await OLD_BOT_MESSAGE.delete();
           } catch (e) {
-            console.error("        Impossible de supprimer le messages.", e);
+            console.error(
+              `        Impossible de supprimer le messages (Server: "${server.name}", channel: "${CHANNEL[1].name}").`,
+              e
+            );
           }
         } else {
           allowAddNewWeapon = false;
@@ -211,7 +220,7 @@ async function refresh(server) {
           nbMessageSend++;
         } catch (e) {
           console.error(
-            `        Impossible d'envoyer un message (Server: "${CLIENT.user.username}", channel: "${CHANNEL[1].name}").`,
+            `        Impossible d'envoyer un message (Server: "${server.name}", channel: "${CHANNEL[1].name}").`,
             e
           );
         }
@@ -225,7 +234,10 @@ async function refresh(server) {
           try {
             message.delete();
           } catch (e) {
-            console.error("        Impossible de supprimer le messages.", e);
+            console.error(
+              `        Impossible de supprimer le messages (Server: "${server.name}", channel: "${CHANNEL[1].name}").`,
+              e
+            );
           }
         }
       );
