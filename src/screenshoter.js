@@ -62,9 +62,17 @@ class Screenshoter {
       defaultViewport: null, // Nécessaire pour définir la taille.
     });
     const PAGE = await BROWSER.newPage();
-
     await PAGE.setViewport({ width: SCREEN_WIDTH, height: SCREEN_HEIGHT });
+
     for (let i = 0; i < urls.length; i++) {
+      console.log(
+        "        (" +
+          ("0" + (i + 1)).slice(-2) +
+          "/" +
+          urls.length +
+          ") Downloading: " +
+          urls[i][1]
+      );
       await PAGE.goto(urls[i][1], { waitUntil: "networkidle2" });
       await this._delay(1000);
       // Prends une capture d'écran

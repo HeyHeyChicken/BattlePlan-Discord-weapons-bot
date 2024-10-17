@@ -14,7 +14,7 @@ const Database = require("./database");
 
 //#region Variables
 
-const DEV_MODE = false;
+const DEV_MODE = true;
 let weapons; // Ici sera stockée la liste des armes provenant de l'API.
 let weaponsUrls; // Ici sera stockée la liste des URL de la page "Armes".
 const API_URL = "https://evabattleplan.com/en/api-discord/?route="; // URL de l'API RES d'EBP - EVA Battle Plan.
@@ -244,11 +244,11 @@ async function refresh(server) {
 async function loop() {
   console.log("Loop start...");
   //DATABASE.fetchNewWeapons();
-  if (!DEV_MODE) {
-    await SCREENSHOTER.download_screenshots(
-      SCREENSHOTER.prepare_urls(weapons, weaponsUrls, WEAPONS_CHANNEL_NAMES)
-    ); // On télécharge les screenshots.
-  }
+  //if (!DEV_MODE) {
+  await SCREENSHOTER.download_screenshots(
+    SCREENSHOTER.prepare_urls(weapons, weaponsUrls, WEAPONS_CHANNEL_NAMES)
+  ); // On télécharge les screenshots.
+  //}
 
   // On boucle sur les serveurs Discord utilisant le bot.
   const SERVERS = Array.from(CLIENT.guilds.cache).map((server) => server[1]);

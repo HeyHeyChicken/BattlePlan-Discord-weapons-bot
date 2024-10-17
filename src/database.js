@@ -22,6 +22,21 @@ class Database {
     });
   }
 
+  _getWeaponByName(weaponName, callback) {
+    this.db.run(
+      `INSERT INTO weapons (name, date) VALUES (?, ?) limit 1`,
+      [weapon.name, weapon.date],
+      function (err, rows) {
+        if (err) {
+          return console.error(err.message);
+          callback(undefined);
+        } else {
+          callback(rows.length == 1 ? rows[0] : undefined);
+        }
+      }
+    );
+  }
+
   fetchNewWeapons() {
     axios.get(this._apiURL + "weapons").then(async (response1) => {
       for (let weapon of response1.data) {
