@@ -14,7 +14,7 @@ const Database = require("./database");
 
 //#region Variables
 
-const DEV_MODE = false;
+const DEV_MODE = process.argv.slice(2)[0] == "true";
 let weapons; // Ici sera stockée la liste des armes provenant de l'API.
 let weaponsUrls; // Ici sera stockée la liste des URL de la page "Armes".
 const API_URL = "https://evabattleplan.com/en/api-discord/?route="; // URL de l'API RES d'EBP - EVA Battle Plan.
@@ -25,7 +25,7 @@ const WEAPONS_CHANNEL_NAMES = [
 ]; // Le bot ne travaillera que sur les channels qui contiennent l'élément 0. L'élément 1 représente la langue devinée du channel.
 const SCREENSHOTER = new Screenshoter();
 const SETTINGS = new Settings();
-//const DATABASE = new Database(API_URL);
+const DATABASE = new Database(API_URL);
 const WEB_PORT = DEV_MODE ? 3001 : 3000;
 
 //#endregion
@@ -58,7 +58,7 @@ const SERVER = HTTP.createServer((req, res) => {
 });
 
 SERVER.listen(WEB_PORT, () => {
-  console.log("Serveur HTTP en écoute sur le port " + WEB_PORT + ".");
+  console.log(`Serveur HTTP en écoute sur le port "${WEB_PORT}".`);
 });
 
 //#endregion
@@ -92,11 +92,7 @@ CLIENT.on("messageCreate", async (message) => {
     ).map((x) => x[1]);
     if (SERVER && CHANNEL.length == 1) {
       console.log(
-        '"' +
-          message.author.globalName +
-          '" asked for a manual refresh for the: "' +
-          SERVER.name +
-          '" server.'
+        `"${message.author.globalName}" asked for a manual refresh for the: "${SERVER.name}" server.`
       );
       console.log("    Getting old messages...");
       const OLD_MESSAGES = await getOldMessages(CHANNEL[0]);
@@ -136,7 +132,7 @@ async function getOldMessages(channel, limit = 100) {
  * @param {*} server Serveur à rafraichir.
  */
 async function refresh(server) {
-  console.log(`    Serveur: ${server.name}`);
+  console.log(`        Server: "${server.name}"`);
   // On récupère les channels qui ont un nom présent dans "WEAPONS_CHANNEL_NAMES".
   const WEAPONS_CHANNELS = Array.from(
     server.channels.cache.filter(
@@ -153,7 +149,7 @@ async function refresh(server) {
       CHANNEL[1].name.toLowerCase().includes(x[0].toLowerCase())
     )[1]; // On récupère la langue du channel.
 
-    console.log(`        Channel: ${CHANNEL[1].name}`);
+    console.log(`            Channel: "${CHANNEL[1].name}"`);
 
     let OLD_MESSAGES = await getOldMessages(CHANNEL[1]);
 
@@ -243,37 +239,34 @@ async function refresh(server) {
  */
 async function loop() {
   console.log("Loop start...");
-  //DATABASE.fetchNewWeapons();
-  //if (!DEV_MODE) {
-  await SCREENSHOTER.download_screenshots(
-    SCREENSHOTER.prepare_urls(weapons, weaponsUrls, WEAPONS_CHANNEL_NAMES)
-  ); // On télécharge les screenshots.
-  //}
+  DATABASE.fetchNewWeapons(async (fetchedWeapons, newWeapons) => {
+    weapons = fetchedWeapons;
+    await SCREENSHOTER.download_screenshots(
+      SCREENSHOTER.prepare_urls(newWeapons, weaponsUrls, WEAPONS_CHANNEL_NAMES)
+    ); // On télécharge les screenshots.
 
-  // On boucle sur les serveurs Discord utilisant le bot.
-  const SERVERS = Array.from(CLIENT.guilds.cache).map((server) => server[1]);
-  console.log("There are " + SERVERS.length + " servers using this bot.");
-  for (const SERVER of SERVERS) {
-    if (!DEV_MODE || (DEV_MODE && SERVER.name == "EBP - EVA Battle Plan")) {
-      refresh(SERVER);
+    // On boucle sur les serveurs Discord utilisant le bot.
+    const SERVERS = Array.from(CLIENT.guilds.cache).map((server) => server[1]);
+    console.log(`    There are "${SERVERS.length}" servers using this bot.`);
+    for (const SERVER of SERVERS) {
+      if (!DEV_MODE || (DEV_MODE && SERVER.name == "EBP - EVA Battle Plan")) {
+        refresh(SERVER);
+      }
     }
-  }
-  console.log("Loop end.");
+    console.log("Loop end.");
+  });
 }
 
 CLIENT.once("ready", async () => {
   console.log(`Node.JS est connecté avec le bot : ${CLIENT.user.username}.`);
 
-  axios.get(API_URL + "weapons").then((response1) => {
-    weapons = response1.data;
-    axios.get(API_URL + "weapons_urls").then((response2) => {
-      weaponsUrls = response2.data;
+  axios.get(API_URL + "weapons_urls").then((response2) => {
+    weaponsUrls = response2.data;
 
-      setInterval(() => {
-        loop();
-      }, 1000 * 60 * 60 * 24); // Le script s'executera toutes les 24h.
+    setInterval(() => {
       loop();
-    });
+    }, 1000 * 60 * 60 * 24); // Le script s'executera toutes les 24h.
+    loop();
   });
 });
 

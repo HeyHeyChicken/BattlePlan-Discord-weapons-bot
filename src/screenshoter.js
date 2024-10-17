@@ -66,12 +66,9 @@ class Screenshoter {
 
     for (let i = 0; i < urls.length; i++) {
       console.log(
-        "        (" +
-          ("0" + (i + 1)).slice(-2) +
-          "/" +
-          urls.length +
-          ") Downloading: " +
-          urls[i][1]
+        `        (${("0" + (i + 1)).slice(-2)}/${("0" + urls.length).slice(
+          -2
+        )}) Downloading: ${urls[i][1]}`
       );
       await PAGE.goto(urls[i][1], { waitUntil: "networkidle2" });
       await this._delay(1000);

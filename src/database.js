@@ -23,39 +23,78 @@ class Database {
   }
 
   _getWeaponByName(weaponName, callback) {
-    this.db.run(
-      `INSERT INTO weapons (name, date) VALUES (?, ?) limit 1`,
-      [weapon.name, weapon.date],
+    this.db.all(
+      `SELECT name, date FROM weapons where name = ? limit 1`,
+      [weaponName],
       function (err, rows) {
         if (err) {
-          return console.error(err.message);
+          console.error(err);
           callback(undefined);
         } else {
-          callback(rows.length == 1 ? rows[0] : undefined);
+          callback(rows && rows.length == 1 ? rows[0] : undefined);
         }
       }
     );
   }
 
-  fetchNewWeapons() {
-    axios.get(this._apiURL + "weapons").then(async (response1) => {
-      for (let weapon of response1.data) {
-        const row = await this.db.get(
-          "SELECT name, date from weapons where name = ?;",
-          [weapon.name]
-        );
-        console.log(row);
+  _insertWeapon(weaponName, weaponDate, callback) {
+    this.db.run(
+      `INSERT INTO weapons (name, date) VALUES (?, ?)`,
+      [weaponName, weaponDate],
+      function (err) {
+        if (err) {
+          console.error(err);
+        }
+        callback();
+      }
+    );
+  }
 
-        await this.db.run(`INSERT INTO weapons (name, date) VALUES (?, ?)`, [
-          weapon.name,
-          weapon.date,
-        ]);
+  _updateWeaponDate(weaponName, weaponDate, callback) {
+    this.db.run(
+      `UPDATE weapons SET date = ? WHERE name = ?`,
+      [weaponDate, weaponName],
+      function (err) {
+        if (err) {
+          console.error(err);
+        }
+        callback();
+      }
+    );
+  }
 
-        const row2 = await this.db.get(
-          "SELECT name, date from weapons where name = ?;",
-          [weapon.name]
-        );
-        console.log(row2);
+  fetchNewWeapons(callback) {
+    const NEW_WEAPONS = [];
+    let done = 0;
+    axios.get(this._apiURL + "weapons").then(async (response) => {
+      const WEAPONS = response.data;
+      for (let weapon of WEAPONS) {
+        this._getWeaponByName(weapon.name, (w1) => {
+          if (!w1) {
+            this._insertWeapon(weapon.name, weapon.date, () => {
+              this._getWeaponByName(weapon.name, (w2) => {
+                NEW_WEAPONS.push(w2);
+                done++;
+                if (WEAPONS.length == done) {
+                  callback(WEAPONS, NEW_WEAPONS);
+                }
+              });
+            });
+          } else if (w1.date != weapon.date) {
+            this._updateWeaponDate(weapon.name, weapon.date, () => {
+              NEW_WEAPONS.push(weapon);
+              done++;
+              if (WEAPONS.length == done) {
+                callback(WEAPONS, NEW_WEAPONS);
+              }
+            });
+          } else {
+            done++;
+            if (WEAPONS.length == done) {
+              callback(WEAPONS, NEW_WEAPONS);
+            }
+          }
+        });
       }
     });
   }
