@@ -1,8 +1,8 @@
 //#region Imports
 
 const { Client, GatewayIntentBits } = require("discord.js"); // Cette librairie me permet de communiquer avec l'API de Discord.
-const axios = require("axios"); // Cette librairie me permet de requêter l'API REST d'EBP - EVA Battle Plan.
-const path = require("path"); // Cette  librairie me permet de créer des chemins d'accès liés à l'OS.
+const AXIOS = require("axios"); // Cette librairie me permet de requêter l'API REST d'EBP - EVA Battle Plan.
+const PATH = require("path"); // Cette  librairie me permet de créer des chemins d'accès liés à l'OS.
 const HTTP = require("http");
 const FS = require("fs");
 
@@ -34,7 +34,7 @@ const WEB_PORT = DEV_MODE ? 3001 : 3000;
 
 const SERVER = HTTP.createServer((req, res) => {
   if (req.url === "/") {
-    const SVG_PATH = path.join(__dirname, "assets/online.svg");
+    const SVG_PATH = PATH.join(__dirname, "assets/online.svg");
 
     FS.readFile(SVG_PATH, (err, data) => {
       if (err) {
@@ -211,7 +211,7 @@ async function refresh(server) {
           await CHANNEL[1].send({
             content: MESSAGE,
             files: [
-              path.join(
+              PATH.join(
                 SCREENSHOTER.screenshotsFolder,
                 (LANGUAGE + "_" + WEAPON.name).toUpperCase() + ".png"
               ),
@@ -274,7 +274,7 @@ async function loop() {
 CLIENT.once("ready", async () => {
   console.log(`Node.JS est connecté avec le bot : ${CLIENT.user.username}.`);
 
-  axios.get(API_URL + "weapons_urls").then((response2) => {
+  AXIOS.get(API_URL + "weapons_urls").then((response2) => {
     weaponsUrls = response2.data;
 
     setInterval(() => {

@@ -1,7 +1,7 @@
 //#region Imports
 
-const sqlite3 = require("sqlite3").verbose();
-const axios = require("axios"); // Cette librairie me permet de requêter l'API REST d'EBP - EVA Battle Plan.
+const SQL_LITE = require("sqlite3").verbose();
+const AXIOS = require("axios"); // Cette librairie me permet de requêter l'API REST d'EBP - EVA Battle Plan.
 
 //#endregion
 
@@ -11,7 +11,7 @@ const axios = require("axios"); // Cette librairie me permet de requêter l'API 
 class Database {
   constructor(apiURL) {
     this._apiURL = apiURL;
-    this.db = new sqlite3.Database("./database.db");
+    this.db = new SQL_LITE.Database("./database.db");
 
     this.db.serialize(() => {
       this.db.run(`CREATE TABLE IF NOT EXISTS weapons (
@@ -66,7 +66,7 @@ class Database {
   fetchNewWeapons(callback) {
     const NEW_WEAPONS = [];
     let done = 0;
-    axios.get(this._apiURL + "weapons").then(async (response) => {
+    AXIOS.get(this._apiURL + "weapons").then(async (response) => {
       const WEAPONS = response.data;
       for (let weapon of WEAPONS) {
         this._getWeaponByName(weapon.name, (w1) => {

@@ -1,8 +1,8 @@
 //#region Imports
 
-const puppeteer = require("puppeteer"); // Cette librairie me permet de télécharger les screenshots des armes.
-const fs = require("fs"); // Cette librairie me permet de travailler avec des fichiers locaux.
-const path = require("path"); // Cette  librairie me permet de créer des chemins d'accès liés à l'OS.
+const PUPPETEER = require("puppeteer"); // Cette librairie me permet de télécharger les screenshots des armes.
+const FS = require("fs"); // Cette librairie me permet de travailler avec des fichiers locaux.
+const PATH = require("path"); // Cette  librairie me permet de créer des chemins d'accès liés à l'OS.
 
 //#endregion
 
@@ -12,8 +12,8 @@ const path = require("path"); // Cette  librairie me permet de créer des chemin
 class Screenshoter {
   constructor() {
     // On s'assure qu'il existe un dossier pour stocker les captures d'écran de chaque armes.
-    this.screenshotsFolder = path.join(__dirname, "screenshots");
-    fs.mkdirSync(this.screenshotsFolder, { recursive: true });
+    this.screenshotsFolder = PATH.join(__dirname, "screenshots");
+    FS.mkdirSync(this.screenshotsFolder, { recursive: true });
   }
 
   prepare_urls(weapons, weaponsUrls, weaponsChannelNames) {
@@ -22,7 +22,7 @@ class Screenshoter {
     for (const NAME of weaponsChannelNames) {
       for (let weapon of weapons) {
         SCREENSHOT_URLS.push([
-          path.join(
+          PATH.join(
             this.screenshotsFolder,
             (NAME[1] + "_" + weapon.name).toUpperCase() + ".png"
           ),
@@ -56,7 +56,7 @@ class Screenshoter {
 
     const SCREEN_WIDTH = 1920 * 0.9;
     const SCREEN_HEIGHT = 1080 * 0.9;
-    const BROWSER = await puppeteer.launch({
+    const BROWSER = await PUPPETEER.launch({
       args: ["--no-sandbox"],
       headless: "shell", // Pour ne pas afficher le navigateur.
       defaultViewport: null, // Nécessaire pour définir la taille.
