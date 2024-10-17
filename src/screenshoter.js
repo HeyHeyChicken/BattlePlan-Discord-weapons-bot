@@ -70,7 +70,7 @@ class Screenshoter {
           -2
         )}) Downloading: ${urls[i][1]}`
       );
-      await PAGE.goto(urls[i][1], { waitUntil: "networkidle2" });
+      await PAGE.goto(urls[i][1], { waitUntil: "networkidle0" });
       await this._delay(1000);
       // Prends une capture d'écran
       await PAGE.screenshot({
