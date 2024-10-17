@@ -4,6 +4,7 @@ const { Client, GatewayIntentBits } = require("discord.js"); // Cette librairie 
 const axios = require("axios"); // Cette librairie me permet de requêter l'API REST d'EBP - EVA Battle Plan.
 const path = require("path"); // Cette  librairie me permet de créer des chemins d'accès liés à l'OS.
 const HTTP = require("http");
+const FS = require("fs");
 
 const Screenshoter = require("./screenshoter");
 const Settings = require("./settings");
@@ -30,8 +31,23 @@ const WEB_PORT = 3000;
 
 const SERVER = HTTP.createServer((req, res) => {
   if (req.url === "/") {
-    res.writeHead(200, { "Content-Type": "text/html" });
-    res.end("EBP - EVA Battle Plan's Discord bot is <b>online</b>.");
+    const SVG_PATH = path.join(__dirname, "assets/online.svg");
+
+    FS.readFile(SVG_PATH, (err, data) => {
+      if (err) {
+        res.writeHead(200, { "Content-Type": "text/html" });
+        res.end("EBP - EVA Battle Plan's Discord bot is <b>online</b>.");
+        return;
+      }
+      res.writeHead(200, {
+        "Content-Type": "image/svg+xml",
+        "Cache-Control":
+          "no-store, no-cache, must-revalidate, proxy-revalidate",
+        Pragma: "no-cache",
+        Expires: "0",
+      });
+      res.end(data);
+    });
   } else {
     res.writeHead(404, { "Content-Type": "text/plain" });
     res.end("Not Found");
