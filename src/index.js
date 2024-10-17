@@ -14,7 +14,7 @@ const Database = require("./database");
 
 //#region Variables
 
-const DEV_MODE = true;
+const DEV_MODE = false;
 let weapons; // Ici sera stockée la liste des armes provenant de l'API.
 let weaponsUrls; // Ici sera stockée la liste des URL de la page "Armes".
 const API_URL = "https://evabattleplan.com/en/api-discord/?route="; // URL de l'API RES d'EBP - EVA Battle Plan.
