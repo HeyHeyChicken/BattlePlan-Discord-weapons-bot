@@ -23,6 +23,7 @@
 5. In the "Permission" tab, in the "Advanced permissions" section, remove all permissions and add this specific permissions to "@everyone" users :
    - See the channel
    - Add reactions
+   - View old messages
 6. In the "Permission" tab, in the "Advanced permissions" section, add theses specific permissions to the "EBP - EVA Battle Plan" bot :
    - See the channel
    - Embed links
