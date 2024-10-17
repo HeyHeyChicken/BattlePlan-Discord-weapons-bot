@@ -37,6 +37,17 @@ class Screenshoter {
   }
 
   /**
+   * Cette fonction permet d'attentre.
+   * @param {*} time Temps en millisecondes.
+   * @returns
+   */
+  async _delay(time) {
+    return new Promise(function (resolve) {
+      setTimeout(resolve, time);
+    });
+  }
+
+  /**
    * Cette fonction permet de récupérer les captures d'écran des pages d'armes.
    * @param {*} urls Liste des armes et des URLs associées par langue.
    */
@@ -55,7 +66,7 @@ class Screenshoter {
     await PAGE.setViewport({ width: SCREEN_WIDTH, height: SCREEN_HEIGHT });
     for (let i = 0; i < urls.length; i++) {
       await PAGE.goto(urls[i][1], { waitUntil: "networkidle2" });
-
+      await this._delay(1000);
       // Prends une capture d'écran
       await PAGE.screenshot({
         path: urls[i][0],

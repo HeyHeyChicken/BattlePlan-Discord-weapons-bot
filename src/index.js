@@ -8,11 +8,13 @@ const FS = require("fs");
 
 const Screenshoter = require("./screenshoter");
 const Settings = require("./settings");
+const Database = require("./database");
 
 //#endregion
 
 //#region Variables
 
+const DEV_MODE = false;
 let weapons; // Ici sera stockée la liste des armes provenant de l'API.
 let weaponsUrls; // Ici sera stockée la liste des URL de la page "Armes".
 const API_URL = "https://evabattleplan.com/en/api-discord/?route="; // URL de l'API RES d'EBP - EVA Battle Plan.
@@ -23,7 +25,8 @@ const WEAPONS_CHANNEL_NAMES = [
 ]; // Le bot ne travaillera que sur les channels qui contiennent l'élément 0. L'élément 1 représente la langue devinée du channel.
 const SCREENSHOTER = new Screenshoter();
 const SETTINGS = new Settings();
-const WEB_PORT = 3000;
+//const DATABASE = new Database(API_URL);
+const WEB_PORT = DEV_MODE ? 3001 : 3000;
 
 //#endregion
 
@@ -75,7 +78,8 @@ CLIENT.on("messageCreate", async (message) => {
 
   // On vérifie que l'utilisateur a les permissions d'administrateur.
   if (
-    message.content === "!ebp_refresh" &&
+    ((!DEV_MODE && message.content == "!ebp_refresh") ||
+      (DEV_MODE && message.content == "!dev_ebp_refresh")) &&
     message.member.permissions.has("ADMINISTRATOR")
   ) {
     const SERVERS = Array.from(CLIENT.guilds.cache);
@@ -96,8 +100,7 @@ CLIENT.on("messageCreate", async (message) => {
       );
       console.log("    Getting old messages...");
       const OLD_MESSAGES = await getOldMessages(CHANNEL[0]);
-      console.log("    Got old messages");
-      console.log(OLD_MESSAGES);
+      console.log("    Got old messages (" + OLD_MESSAGES.length + ")");
       for (let message of OLD_MESSAGES) {
         try {
           await message.delete();
@@ -106,10 +109,8 @@ CLIENT.on("messageCreate", async (message) => {
           console.error("        Impossible de supprimer le messages.", e);
         }
       }
-      setTimeout(() => {
-        console.log("refreshing");
-        refresh(SERVER);
-      }, 5000);
+      console.log("refreshing");
+      refresh(SERVER);
     }
   }
 });
@@ -190,7 +191,11 @@ async function refresh(server) {
           .slice(0, -2);
         // On verrifie que les données de l'arme sont à jour sur ce channel.
         if (DATE_STRING != OLD_DATE_STRING) {
-          await OLD_BOT_MESSAGE.delete();
+          try {
+            await OLD_BOT_MESSAGE.delete();
+          } catch (e) {
+            console.error("        Impossible de supprimer le messages.", e);
+          }
         } else {
           allowAddNewWeapon = false;
         }
@@ -219,7 +224,11 @@ async function refresh(server) {
     if (nbMessageSend > 0) {
       OLD_BOT_MESSAGES.filter((x) => x.content.startsWith("https")).forEach(
         (message) => {
-          message.delete();
+          try {
+            message.delete();
+          } catch (e) {
+            console.error("        Impossible de supprimer le messages.", e);
+          }
         }
       );
       CHANNEL[1].send({
@@ -234,14 +243,20 @@ async function refresh(server) {
  */
 async function loop() {
   console.log("Loop start...");
-  await SCREENSHOTER.download_screenshots(
-    SCREENSHOTER.prepare_urls(weapons, weaponsUrls, WEAPONS_CHANNEL_NAMES)
-  ); // On télécharge les screenshots.
+  //DATABASE.fetchNewWeapons();
+  if (!DEV_MODE) {
+    await SCREENSHOTER.download_screenshots(
+      SCREENSHOTER.prepare_urls(weapons, weaponsUrls, WEAPONS_CHANNEL_NAMES)
+    ); // On télécharge les screenshots.
+  }
 
   // On boucle sur les serveurs Discord utilisant le bot.
   const SERVERS = Array.from(CLIENT.guilds.cache).map((server) => server[1]);
+  console.log("There are " + SERVERS.length + " servers using this bot.");
   for (const SERVER of SERVERS) {
-    refresh(SERVER);
+    if (!DEV_MODE || (DEV_MODE && SERVER.name == "EBP - EVA Battle Plan")) {
+      refresh(SERVER);
+    }
   }
   console.log("Loop end.");
 }
