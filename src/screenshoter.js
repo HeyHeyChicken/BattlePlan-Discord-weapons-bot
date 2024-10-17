@@ -28,7 +28,7 @@ class Screenshoter {
           ),
           weaponsUrls[NAME[1]] +
             "?w=" +
-            weapon.name.toLowerCase().replaceAll("-", " ") +
+            weapon.name.toLowerCase() +
             "&discord_bot",
         ]);
       }

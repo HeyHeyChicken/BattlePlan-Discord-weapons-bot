@@ -94,10 +94,15 @@ CLIENT.on("messageCreate", async (message) => {
           SERVER.name +
           '" server.'
       );
-      try {
-        await message.channel.bulkDelete(await getOldMessages(CHANNEL[0]));
-      } catch (e) {
-        console.error("        Impossible de supprimer les messages.", e);
+      console.log("    Getting old messages...");
+      const OLD_MESSAGES = await getOldMessages(CHANNEL[0]);
+      console.log("    Got old messages (" + OLD_MESSAGES.length + ")");
+      for (let message of OLD_MESSAGES) {
+        try {
+          message.delete();
+        } catch (e) {
+          console.error("        Impossible de supprimer le messages.", e);
+        }
       }
       setTimeout(() => {
         refresh(SERVER);
