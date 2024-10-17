@@ -1,6 +1,6 @@
 //#region Imports
 
-const { Client, GatewayIntentBits } = require("discord.js"); // Cette librairie me permet de communiquer avec l'API de Discord.
+const { Client, GatewayIntentBits, EmbedBuilder } = require("discord.js"); // Cette librairie me permet de communiquer avec l'API de Discord.
 const AXIOS = require("axios"); // Cette librairie me permet de requêter l'API REST d'EBP - EVA Battle Plan.
 const PATH = require("path"); // Cette  librairie me permet de créer des chemins d'accès liés à l'OS.
 const HTTP = require("http");
@@ -32,16 +32,22 @@ const WEB_PORT = DEV_MODE ? 3001 : 3000;
 
 //#region Web server
 
+/**
+ * Ce serveur web indique à l'utilisateur si le bot est en ligne.
+ + URL : https://discord.evabattleplan.com/
+ */
 const SERVER = HTTP.createServer((req, res) => {
   if (req.url === "/") {
     const SVG_PATH = PATH.join(__dirname, "assets/online.svg");
 
     FS.readFile(SVG_PATH, (err, data) => {
+      // Si le chargement de l'image rencontre un souci, on affiche un texte.
       if (err) {
         res.writeHead(200, { "Content-Type": "text/html" });
         res.end("EBP - EVA Battle Plan's Discord bot is <b>online</b>.");
         return;
       }
+      // On affiche un SVG indiquant que le serveur est en ligne.
       res.writeHead(200, {
         "Content-Type": "image/svg+xml",
         "Cache-Control":
@@ -125,7 +131,7 @@ async function getOldMessages(channel, limit = 100) {
     oldMessages = Array.from(await channel.messages.fetch({ limit: limit })); // On récupère les anciens messages envoyés sur le channel.
   } catch (e) {
     console.error(
-      `        Impossible d'accéder aux messages (Channel: "${channel.name}").`,
+      `        Unable to access messages (Channel: "${channel.name}").`,
       e
     );
   }
@@ -207,9 +213,17 @@ async function refresh(server) {
       if (allowAddNewWeapon) {
         // On envoie un message contenant les dernières infos de l'arme.
         const MESSAGE = TITLE + "\n(*" + DATE_STRING + "*)";
+        const EMBED = new EmbedBuilder()
+          .setTitle(TITLE)
+          .setURL("https://discord.js.org/")
+          .setImage(
+            "https://cdn.discordapp.com/attachments/1296401707223220258/1296577504919818280/EN_VULCAN.png?ex=6712cb66&is=671179e6&hm=2c35b15db925efac89f5dbb205c12774cc906dce42563b503759f2ac2cf3bfe8&"
+          )
+          .setColor("#ebac78");
         try {
           await CHANNEL[1].send({
             content: MESSAGE,
+            //embeds: [EMBED],
             files: [
               PATH.join(
                 SCREENSHOTER.screenshotsFolder,
