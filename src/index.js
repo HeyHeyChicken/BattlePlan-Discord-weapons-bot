@@ -210,7 +210,10 @@ async function refresh(server) {
           });
           nbMessageSend++;
         } catch (e) {
-          console.error("        Impossible d'envoyer un message.", e);
+          console.error(
+            `        Impossible d'envoyer un message (Server: "${CLIENT.user.username}", channel: "${CHANNEL[1].name}").`,
+            e
+          );
         }
       }
     }
