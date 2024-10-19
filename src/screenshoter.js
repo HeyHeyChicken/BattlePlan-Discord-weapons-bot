@@ -3,7 +3,6 @@
 const PUPPETEER = require("puppeteer"); // Cette librairie me permet de télécharger les screenshots des armes.
 const FS = require("fs"); // Cette librairie me permet de travailler avec des fichiers locaux.
 const PATH = require("path"); // Cette  librairie me permet de créer des chemins d'accès liés à l'OS.
-const COLORS = require("colors");
 
 //#endregion
 
@@ -56,7 +55,7 @@ class Screenshoter {
    * @param {*} urls Liste des armes et des URLs associées par langue.
    */
   async download_screenshots(weapons, urls) {
-    console.log(COLORS.magenta("    Downloading screenshots..."));
+    console.log("    Downloading screenshots...");
 
     const DISCORD_SERVER = this._discord
       ._getServers()
@@ -146,7 +145,7 @@ class Screenshoter {
       }
     }
 
-    console.log(COLORS.magenta("    Screenshots downloaded."));
+    console.log("    Screenshots downloaded.");
   }
 }
 

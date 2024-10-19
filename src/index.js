@@ -5,7 +5,6 @@ const PATH = require("path"); // Cette  librairie me permet de créer des chemin
 const HTTP = require("http");
 const FS = require("fs");
 const { EmbedBuilder } = require("discord.js"); // Cette librairie me permet de communiquer avec l'API de Discord.
-const COLORS = require("colors");
 
 const Screenshoter = require("./screenshoter");
 const Settings = require("./settings");
@@ -92,7 +91,7 @@ function embedBuilder(weaponName, weaponDate, imageURL, weaponURL) {
  * @param {*} server Serveur à rafraichir.
  */
 async function refresh(server) {
-  console.log(COLORS.cyan("        Server: ") + `"${server.name}"`);
+  console.log(`        Server: "${server.name}"`);
   // On récupère les channels qui ont un nom présent dans "WEAPONS_CHANNEL_NAMES".
   const WEAPONS_CHANNELS = DISCORD._getServerChannels(server).filter(
     (channel) => channel.topic && channel.topic.includes("#EBP_WEAPONS_BOT(")
@@ -104,7 +103,7 @@ async function refresh(server) {
       .slice(0, 2)
       .toLowerCase();
 
-    console.log(COLORS.grey("            Channel: ") + `"${CHANNEL.name}"`);
+    console.log(`            Channel: "${CHANNEL.name}"`);
 
     let OLD_MESSAGES = await DISCORD.getOldMessages(CHANNEL);
 
@@ -222,7 +221,7 @@ function i18n(path, language) {
 }
 
 function checkWeaponsDataFromAPI(callback) {
-  console.log(COLORS.yellow("Refreshing from API..."));
+  console.log("Refreshing from API...");
   DATABASE.fetchNewWeapons(async (fetchedWeapons) => {
     weapons = fetchedWeapons;
     await SCREENSHOTER.download_screenshots(
@@ -234,7 +233,7 @@ function checkWeaponsDataFromAPI(callback) {
       )
     ); // On télécharge les screenshots.
 
-    console.log(COLORS.yellow("Refreshed."));
+    console.log("Refreshed.");
     callback();
   });
 }
@@ -243,7 +242,7 @@ function checkWeaponsDataFromAPI(callback) {
  * Fonction principale.
  */
 async function loop() {
-  console.log(COLORS.blue("Loop start..."));
+  console.log("Loop start...");
   checkWeaponsDataFromAPI(() => {
     // On boucle sur les serveurs Discord utilisant le bot.
     const SERVERS = DISCORD._getServers();
@@ -253,7 +252,7 @@ async function loop() {
         refresh(SERVER);
       }
     }
-    console.log(COLORS.blue("Loop end."));
+    console.log("Loop end.");
   });
 }
 
