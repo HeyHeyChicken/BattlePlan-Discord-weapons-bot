@@ -95,7 +95,8 @@ async function refresh(server) {
 
   for (const CHANNEL of WEAPONS_CHANNELS) {
     const LANGUAGE = CHANNEL.topic
-      .split("#EBP_WEAPONS_BOT(")[1]
+      .split("#EBP_WEAPONS_BOT(")
+      .at(-1)
       .slice(0, 2)
       .toLowerCase();
 
@@ -133,49 +134,55 @@ async function refresh(server) {
       ); // On cherche un ancien message en rapport avec cette arme.
 
       const IMAGE = await DATABASE.selectImage(WEAPON.name, LANGUAGE);
-      if (OLD_BOT_MESSAGE) {
-        allowAddNewWeapon = false;
-        if (OLD_BOT_MESSAGE.embeds[0]) {
-          OLD_DATE_STRING = OLD_BOT_MESSAGE.embeds[0].footer.text;
-          // On verrifie que les données de l'arme sont à jour sur ce channel.
-          if (DATE_STRING != OLD_DATE_STRING) {
-            try {
-              await await OLD_BOT_MESSAGE.edit({
-                embeds: [
-                  embedBuilder(
-                    WEAPON.name,
-                    DATE_STRING,
-                    IMAGE.url,
-                    weaponsUrls[LANGUAGE] + "?w=" + encodeURI(WEAPON.name)
-                  ),
-                ],
-              });
-            } catch (e) {
-              console.error(
-                `        Impossible de modifier le messages (Server: "${server.name}", channel: "${CHANNEL.name}").`,
-                e
-              );
+      if (IMAGE) {
+        if (OLD_BOT_MESSAGE) {
+          allowAddNewWeapon = false;
+          if (OLD_BOT_MESSAGE.embeds[0]) {
+            OLD_DATE_STRING = OLD_BOT_MESSAGE.embeds[0].footer.text;
+            // On verrifie que les données de l'arme sont à jour sur ce channel.
+            if (DATE_STRING != OLD_DATE_STRING) {
+              try {
+                await await OLD_BOT_MESSAGE.edit({
+                  embeds: [
+                    embedBuilder(
+                      WEAPON.name,
+                      DATE_STRING,
+                      IMAGE.url,
+                      weaponsUrls[LANGUAGE] + "?w=" + encodeURI(WEAPON.name)
+                    ),
+                  ],
+                });
+              } catch (e) {
+                console.error(
+                  `        Impossible de modifier le messages (Server: "${server.name}", channel: "${CHANNEL.name}").`,
+                  e
+                );
+              }
             }
           }
         }
-      }
-      if (allowAddNewWeapon) {
-        // On envoie un message contenant les dernières infos de l'arme.
+        if (allowAddNewWeapon) {
+          // On envoie un message contenant les dernières infos de l'arme.
 
-        if (
-          await DISCORD.sendMessage(
-            CHANNEL,
-            "",
-            embedBuilder(
-              WEAPON.name,
-              DATE_STRING,
-              IMAGE.url,
-              weaponsUrls[LANGUAGE] + "?w=" + encodeURI(WEAPON.name)
+          if (
+            await DISCORD.sendMessage(
+              CHANNEL,
+              "",
+              embedBuilder(
+                WEAPON.name,
+                DATE_STRING,
+                IMAGE.url,
+                weaponsUrls[LANGUAGE] + "?w=" + encodeURI(WEAPON.name)
+              )
             )
-          )
-        ) {
-          nbMessageSend++;
+          ) {
+            nbMessageSend++;
+          }
         }
+      } else {
+        console.error(
+          `Can't find image (Weapon: "${WEAPON.name}", language: "${LANGUAGE}").`
+        );
       }
     }
 

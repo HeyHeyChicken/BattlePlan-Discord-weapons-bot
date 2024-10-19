@@ -144,6 +144,19 @@ class Screenshoter {
                 OLD.attachments.first().proxyURL
               );
             }
+          } else if (
+            OLD_DEV_MESSAGE &&
+            OLD_DEV_MESSAGE.content.split("\n").at(-1) == FORMATED_WEAPON_DATE
+          ) {
+            const OLD = OLD_DEV_MESSAGES.find(
+              (message) =>
+                message.content == INFOS + "\n" + FORMATED_WEAPON_DATE
+            );
+            this._database.setImage(
+              SPLITTED_INFOS[1].toLowerCase(),
+              SPLITTED_INFOS[0].toLowerCase(),
+              OLD.attachments.first().proxyURL
+            );
           }
         }
         await BROWSER.close();
