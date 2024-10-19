@@ -234,7 +234,9 @@ function checkWeaponsDataFromAPI(callback) {
     ); // On télécharge les screenshots.
 
     console.log("Refreshed.");
-    callback();
+    if (callback) {
+      callback();
+    }
   });
 }
 
@@ -343,6 +345,7 @@ DISCORD.client.once("ready", async () => {
     setInterval(() => {
       loop();
     }, 1000 * 60 * 60 * 24); // Le script s'executera toutes les 24h.
+    checkWeaponsDataFromAPI();
   });
 });
 
