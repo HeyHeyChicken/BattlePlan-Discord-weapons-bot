@@ -80,7 +80,12 @@ class Screenshoter {
         await PAGE.setViewport({ width: SCREEN_WIDTH, height: SCREEN_HEIGHT });
 
         for (let i = 0; i < urls.length; i++) {
-          const INFOS = urls[i][0].split("\\").at(-1).slice(0, -4);
+          const INFOS = urls[i][0]
+            .split("\\")
+            .at(-1)
+            .split("/")
+            .at(-1)
+            .slice(0, -4);
           const SPLITTED_INFOS = INFOS.split("_");
           const WEAPON = weapons.find(
             (weapon) => weapon.name.toUpperCase() == SPLITTED_INFOS[1]
