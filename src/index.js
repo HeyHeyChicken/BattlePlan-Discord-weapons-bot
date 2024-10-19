@@ -20,11 +20,7 @@ const API_URL = "https://evabattleplan.com/en/api-discord/?route="; // URL de l'
 
 let weapons; // Ici sera stockée la liste des armes provenant de l'API.
 let weaponsUrls; // Ici sera stockée la liste des URL de la page "Armes".
-const WEAPONS_CHANNEL_NAMES = [
-  ["eapons", "en"],
-  ["rmes", "fr"],
-  ["rmas", "es"],
-]; // Le bot ne travaillera que sur les channels qui contiennent l'élément 0. L'élément 1 représente la langue devinée du channel.
+const LANGUAGES = ["en", "fr", "es"]; // Le bot ne travaillera que sur les channels qui contiennent l'élément 0. L'élément 1 représente la langue devinée du channel.
 const SETTINGS = new Settings();
 const DISCORD = new Discord(DEV_MODE);
 const DATABASE = new Database(API_URL);
@@ -92,7 +88,7 @@ function embedBuilder(weaponName, weaponDate, imageURL, weaponURL) {
  */
 async function refresh(server) {
   console.log(`        Server: "${server.name}"`);
-  // On récupère les channels qui ont un nom présent dans "WEAPONS_CHANNEL_NAMES".
+  // On récupère les channels qui souhaitent contenir les
   const WEAPONS_CHANNELS = DISCORD._getServerChannels(server).filter(
     (channel) => channel.topic && channel.topic.includes("#EBP_WEAPONS_BOT(")
   );
@@ -226,11 +222,7 @@ function checkWeaponsDataFromAPI(callback) {
     weapons = fetchedWeapons;
     await SCREENSHOTER.download_screenshots(
       fetchedWeapons,
-      SCREENSHOTER.prepare_urls(
-        fetchedWeapons,
-        weaponsUrls,
-        WEAPONS_CHANNEL_NAMES
-      )
+      SCREENSHOTER.prepare_urls(fetchedWeapons, weaponsUrls, LANGUAGES)
     ); // On télécharge les screenshots.
 
     console.log("Refreshed.");

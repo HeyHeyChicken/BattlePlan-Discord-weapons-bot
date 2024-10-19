@@ -19,17 +19,17 @@ class Screenshoter {
     FS.mkdirSync(this.screenshotsFolder, { recursive: true });
   }
 
-  prepare_urls(weapons, weaponsUrls, weaponsChannelNames) {
+  prepare_urls(weapons, weaponsUrls, languages) {
     // On prépare la liste des URLs à scanner pour créer les screenshots de chaque armes, pour chaque langues.
     const SCREENSHOT_URLS = [];
-    for (const NAME of weaponsChannelNames) {
+    for (const language of languages) {
       for (let weapon of weapons) {
         SCREENSHOT_URLS.push([
           PATH.join(
             this.screenshotsFolder,
-            (NAME[1] + "_" + weapon.name).toUpperCase() + ".png"
+            (language + "_" + weapon.name).toUpperCase() + ".png"
           ),
-          weaponsUrls[NAME[1]] +
+          weaponsUrls[language] +
             "?w=" +
             weapon.name.toLowerCase() +
             "&discord_bot",
