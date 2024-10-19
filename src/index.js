@@ -302,17 +302,12 @@ DISCORD.client.on("messageCreate", async (message) => {
           (server) => server.id == SERVER_ID
         );
         if (SERVER) {
-          const CHANNELS = Array.from(
-            SERVER.channels.cache.filter(
-              (channel) =>
-                channel.name &&
-                WEAPONS_CHANNEL_NAMES.some((keyword) =>
-                  channel.name.toLowerCase().includes(keyword[0].toLowerCase())
-                )
-            )
+          const CHANNELS = DISCORD._getServerChannels(SERVER).filter(
+            (channel) =>
+              channel.topic && channel.topic.includes("#EBP_WEAPONS_BOT(")
           );
-          if (CHANNELS.length == 1) {
-            const MESSAGES = await DISCORD.getOldMessages(CHANNELS[0][1]);
+          if (CHANNELS.length > 0) {
+            const MESSAGES = await DISCORD.getOldMessages(CHANNELS[0]);
             for (let message of MESSAGES) {
               await DISCORD.deleteMessage(message);
             }
