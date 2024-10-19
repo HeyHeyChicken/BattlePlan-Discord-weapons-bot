@@ -26,8 +26,8 @@
    - View old messages
 6. In the "Permission" tab, in the "Advanced permissions" section, add theses specific permissions to the "EBP - EVA Battle Plan" bot :
    - See the channel
-   - Embed links
    - Send messages
+   - Embed links
    - Attach files
    - Manage messages
    - View old messages

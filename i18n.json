@@ -1,0 +1,14 @@
+{
+  "en": {
+    "source": "Source",
+    "install": "Install this bot on your server"
+  },
+  "es": {
+    "source": "Fuente",
+    "install": "Instala este bot en tu servidor"
+  },
+  "fr": {
+    "source": "Source",
+    "install": "Installez ce bot sur votre serveur"
+  }
+}

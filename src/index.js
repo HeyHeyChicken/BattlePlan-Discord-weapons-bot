@@ -1,32 +1,37 @@
 //#region Imports
 
-const { Client, GatewayIntentBits, EmbedBuilder } = require("discord.js"); // Cette librairie me permet de communiquer avec l'API de Discord.
 const AXIOS = require("axios"); // Cette librairie me permet de requêter l'API REST d'EBP - EVA Battle Plan.
 const PATH = require("path"); // Cette  librairie me permet de créer des chemins d'accès liés à l'OS.
 const HTTP = require("http");
 const FS = require("fs");
+const { EmbedBuilder } = require("discord.js"); // Cette librairie me permet de communiquer avec l'API de Discord.
+const COLORS = require("colors");
 
 const Screenshoter = require("./screenshoter");
 const Settings = require("./settings");
 const Database = require("./database");
+const Discord = require("./discord");
 
 //#endregion
 
 //#region Variables
 
 const DEV_MODE = process.argv.slice(2)[0] == "true";
+const API_URL = "https://evabattleplan.com/en/api-discord/?route="; // URL de l'API RES d'EBP - EVA Battle Plan.
+
 let weapons; // Ici sera stockée la liste des armes provenant de l'API.
 let weaponsUrls; // Ici sera stockée la liste des URL de la page "Armes".
-const API_URL = "https://evabattleplan.com/en/api-discord/?route="; // URL de l'API RES d'EBP - EVA Battle Plan.
 const WEAPONS_CHANNEL_NAMES = [
   ["eapons", "en"],
   ["rmes", "fr"],
   ["rmas", "es"],
 ]; // Le bot ne travaillera que sur les channels qui contiennent l'élément 0. L'élément 1 représente la langue devinée du channel.
-const SCREENSHOTER = new Screenshoter();
 const SETTINGS = new Settings();
+const DISCORD = new Discord(DEV_MODE);
 const DATABASE = new Database(API_URL);
+const SCREENSHOTER = new Screenshoter(DISCORD, DATABASE);
 const WEB_PORT = DEV_MODE ? 3001 : 3000;
+const I18N = JSON.parse(FS.readFileSync("i18n.json", "utf8"));
 
 //#endregion
 
@@ -69,73 +74,15 @@ SERVER.listen(WEB_PORT, () => {
 
 //#endregion
 
-const CLIENT = new Client({
-  intents: [
-    GatewayIntentBits.Guilds,
-    GatewayIntentBits.GuildMessages,
-    GatewayIntentBits.MessageContent,
-  ],
-});
-
-// Si un utilisateur créé un message
-CLIENT.on("messageCreate", async (message) => {
-  // On ignore les messages du bot.
-  if (message.author.bot) return;
-
-  // On vérifie que l'utilisateur a les permissions d'administrateur.
-  if (
-    ((!DEV_MODE && message.content == "!ebp_refresh") ||
-      (DEV_MODE && message.content == "!dev_ebp_refresh")) &&
-    message.member.permissions.has("ADMINISTRATOR")
-  ) {
-    const SERVERS = Array.from(CLIENT.guilds.cache);
-    const SERVER = Array.from(SERVERS)
-      .map((x) => x[1])
-      .find((x) => x.id == message.guildId);
-
-    const CHANNEL = Array.from(
-      SERVER.channels.cache.filter((channel) => channel.id == message.channelId)
-    ).map((x) => x[1]);
-    if (SERVER && CHANNEL.length == 1) {
-      console.log(
-        `"${message.author.globalName}" asked for a manual refresh for the: "${SERVER.name}" server.`
-      );
-      console.log("    Getting old messages...");
-      const OLD_MESSAGES = await getOldMessages(CHANNEL[0]);
-      console.log("    Got old messages (" + OLD_MESSAGES.length + ")");
-      for (let message of OLD_MESSAGES) {
-        try {
-          await message.delete();
-        } catch (e) {
-          console.error(
-            `        Impossible de supprimer le messages (Server: "${SERVER.name}", channel: "${CHANNEL[0].name}").`,
-            e
-          );
-        }
-      }
-      console.log("refreshing");
-      refresh(SERVER);
-    }
-  }
-});
-
-/**
- * Cette fonction retourne les anciens messages d'un salon.
- * @param {*} channel Salon à analyser.
- * @param {*} limit Nombre de messages maximim à récupérer.
- * @returns Liste des anciens messages du salon.
- */
-async function getOldMessages(channel, limit = 100) {
-  let oldMessages = [];
-  try {
-    oldMessages = Array.from(await channel.messages.fetch({ limit: limit })); // On récupère les anciens messages envoyés sur le channel.
-  } catch (e) {
-    console.error(
-      `        Unable to access messages (Channel: "${channel.name}").`,
-      e
-    );
-  }
-  return Array.from(oldMessages).map((x) => x[1]);
+function embedBuilder(weaponName, weaponDate, imageURL, weaponURL) {
+  return new EmbedBuilder()
+    .setTitle(weaponName.toUpperCase())
+    .setURL(weaponURL)
+    .setImage(imageURL)
+    .setFooter({
+      text: weaponDate,
+    })
+    .setColor("#313338");
 }
 
 /**
@@ -143,38 +90,32 @@ async function getOldMessages(channel, limit = 100) {
  * @param {*} server Serveur à rafraichir.
  */
 async function refresh(server) {
-  console.log(`        Server: "${server.name}"`);
+  console.log(COLORS.cyan("        Server: ") + `"${server.name}"`);
   // On récupère les channels qui ont un nom présent dans "WEAPONS_CHANNEL_NAMES".
-  const WEAPONS_CHANNELS = Array.from(
-    server.channels.cache.filter(
-      (channel) =>
-        channel.name &&
-        WEAPONS_CHANNEL_NAMES.some((keyword) =>
-          channel.name.toLowerCase().includes(keyword[0].toLowerCase())
-        )
-    )
+  const WEAPONS_CHANNELS = DISCORD._getServerChannels(server).filter(
+    (channel) => channel.topic && channel.topic.includes("#EBP_WEAPONS_BOT(")
   );
 
   for (const CHANNEL of WEAPONS_CHANNELS) {
-    const LANGUAGE = WEAPONS_CHANNEL_NAMES.find((x) =>
-      CHANNEL[1].name.toLowerCase().includes(x[0].toLowerCase())
-    )[1]; // On récupère la langue du channel.
+    const LANGUAGE = CHANNEL.topic
+      .split("#EBP_WEAPONS_BOT(")[1]
+      .slice(0, 2)
+      .toLowerCase();
 
-    console.log(`            Channel: "${CHANNEL[1].name}"`);
+    console.log(COLORS.grey("            Channel: ") + `"${CHANNEL.name}"`);
 
-    let OLD_MESSAGES = await getOldMessages(CHANNEL[1]);
+    let OLD_MESSAGES = await DISCORD.getOldMessages(CHANNEL);
 
     // On filtre les anciens messages pour ne garder que les messages envoyés par le BOT.
     const OLD_BOT_MESSAGES = OLD_MESSAGES.filter(
       (x) =>
         x.author.bot == true &&
-        x.author.username == CLIENT.user.username &&
-        x.author.discriminator == CLIENT.user.discriminator
+        x.author.username == DISCORD.client.user.username &&
+        x.author.discriminator == DISCORD.client.user.discriminator
     );
     let nbMessageSend = 0; // Cette variable représente le nombre de messages envoyés sur le channel.
 
     for (const WEAPON of weapons) {
-      const TITLE = "**" + WEAPON.name.toUpperCase() + "**";
       const DATE = new Date(WEAPON.date);
       const DATE_STRING =
         ("0" + DATE.getDate()).slice(-2) +
@@ -188,105 +129,212 @@ async function refresh(server) {
         ("0" + DATE.getMinutes()).slice(-2);
       let allowAddNewWeapon = true;
 
-      const OLD_BOT_MESSAGE = OLD_BOT_MESSAGES.find((x) =>
-        x.content.startsWith(TITLE)
+      const OLD_BOT_MESSAGE = OLD_BOT_MESSAGES.find(
+        (message) =>
+          message.embeds[0] &&
+          message.embeds[0].title == WEAPON.name.toUpperCase()
       ); // On cherche un ancien message en rapport avec cette arme.
+
+      const IMAGE = await DATABASE.selectImage(WEAPON.name, LANGUAGE);
       if (OLD_BOT_MESSAGE) {
-        OLD_DATE_STRING = OLD_BOT_MESSAGE.content
-          .split("(*")
-          .at(-1)
-          .slice(0, -2);
-        // On verrifie que les données de l'arme sont à jour sur ce channel.
-        if (DATE_STRING != OLD_DATE_STRING) {
-          try {
-            await OLD_BOT_MESSAGE.delete();
-          } catch (e) {
-            console.error(
-              `        Impossible de supprimer le messages (Server: "${server.name}", channel: "${CHANNEL[1].name}").`,
-              e
-            );
+        allowAddNewWeapon = false;
+        if (OLD_BOT_MESSAGE.embeds[0]) {
+          OLD_DATE_STRING = OLD_BOT_MESSAGE.embeds[0].footer.text;
+          // On verrifie que les données de l'arme sont à jour sur ce channel.
+          if (DATE_STRING != OLD_DATE_STRING) {
+            try {
+              await await OLD_BOT_MESSAGE.edit({
+                embeds: [
+                  embedBuilder(
+                    WEAPON.name,
+                    DATE_STRING,
+                    IMAGE.url,
+                    weaponsUrls[LANGUAGE] + "?w=" + encodeURI(WEAPON.name)
+                  ),
+                ],
+              });
+            } catch (e) {
+              console.error(
+                `        Impossible de modifier le messages (Server: "${server.name}", channel: "${CHANNEL.name}").`,
+                e
+              );
+            }
           }
-        } else {
-          allowAddNewWeapon = false;
         }
       }
       if (allowAddNewWeapon) {
         // On envoie un message contenant les dernières infos de l'arme.
-        const MESSAGE = TITLE + "\n(*" + DATE_STRING + "*)";
-        const EMBED = new EmbedBuilder()
-          .setTitle(TITLE)
-          .setURL("https://discord.js.org/")
-          .setImage(
-            "https://cdn.discordapp.com/attachments/1296401707223220258/1296577504919818280/EN_VULCAN.png?ex=6712cb66&is=671179e6&hm=2c35b15db925efac89f5dbb205c12774cc906dce42563b503759f2ac2cf3bfe8&"
+
+        if (
+          await DISCORD.sendMessage(
+            CHANNEL,
+            "",
+            embedBuilder(
+              WEAPON.name,
+              DATE_STRING,
+              IMAGE.url,
+              weaponsUrls[LANGUAGE] + "?w=" + encodeURI(WEAPON.name)
+            )
           )
-          .setColor("#ebac78");
-        try {
-          await CHANNEL[1].send({
-            content: MESSAGE,
-            //embeds: [EMBED],
-            files: [
-              PATH.join(
-                SCREENSHOTER.screenshotsFolder,
-                (LANGUAGE + "_" + WEAPON.name).toUpperCase() + ".png"
-              ),
-            ],
-          });
+        ) {
           nbMessageSend++;
-        } catch (e) {
-          console.error(
-            `        Impossible d'envoyer un message (Server: "${server.name}", channel: "${CHANNEL[1].name}").`,
-            e
-          );
         }
       }
     }
 
     // On envoie le message final.
-    if (nbMessageSend > 0) {
-      OLD_BOT_MESSAGES.filter((x) => x.content.startsWith("https")).forEach(
-        (message) => {
-          try {
-            message.delete();
-          } catch (e) {
-            console.error(
-              `        Impossible de supprimer le messages (Server: "${server.name}", channel: "${CHANNEL[1].name}").`,
-              e
-            );
-          }
+    const OLD_FINAL = OLD_BOT_MESSAGES.filter((x) =>
+      x.content.startsWith("─────────────")
+    );
+    if (nbMessageSend > 0 || OLD_FINAL.length == 0) {
+      OLD_FINAL.forEach((message) => {
+        try {
+          message.delete();
+        } catch (e) {
+          console.error(
+            `        Impossible de supprimer le messages (Server: "${server.name}", channel: "${CHANNEL.name}").`,
+            e
+          );
         }
-      );
-      CHANNEL[1].send({
-        content: weaponsUrls[LANGUAGE],
+      });
+      await CHANNEL.send({
+        content:
+          "───────────────────────────────────\n" +
+          i18n("source", LANGUAGE) +
+          ": " +
+          `<${weaponsUrls[LANGUAGE]}>` +
+          "\n" +
+          i18n("install", LANGUAGE) +
+          ": " +
+          `<https://github.com/HeyHeyChicken/BattlePlan-Discord-weapons-bot>`,
       });
     }
   }
+}
+
+function i18n(path, language) {
+  if (!Object.keys(I18N).includes(language)) {
+    language = "en";
+  }
+  return I18N[language][path];
+}
+
+function checkWeaponsDataFromAPI(callback) {
+  console.log(COLORS.yellow("Refreshing from API..."));
+  DATABASE.fetchNewWeapons(async (fetchedWeapons) => {
+    weapons = fetchedWeapons;
+    await SCREENSHOTER.download_screenshots(
+      fetchedWeapons,
+      SCREENSHOTER.prepare_urls(
+        fetchedWeapons,
+        weaponsUrls,
+        WEAPONS_CHANNEL_NAMES
+      )
+    ); // On télécharge les screenshots.
+
+    console.log(COLORS.yellow("Refreshed."));
+    callback();
+  });
 }
 
 /**
  * Fonction principale.
  */
 async function loop() {
-  console.log("Loop start...");
-  DATABASE.fetchNewWeapons(async (fetchedWeapons, newWeapons) => {
-    weapons = fetchedWeapons;
-    await SCREENSHOTER.download_screenshots(
-      SCREENSHOTER.prepare_urls(newWeapons, weaponsUrls, WEAPONS_CHANNEL_NAMES)
-    ); // On télécharge les screenshots.
-
+  console.log(COLORS.blue("Loop start..."));
+  checkWeaponsDataFromAPI(() => {
     // On boucle sur les serveurs Discord utilisant le bot.
-    const SERVERS = Array.from(CLIENT.guilds.cache).map((server) => server[1]);
+    const SERVERS = DISCORD._getServers();
     console.log(`    There are "${SERVERS.length}" servers using this bot.`);
     for (const SERVER of SERVERS) {
       if (!DEV_MODE || (DEV_MODE && SERVER.name == "EBP - EVA Battle Plan")) {
         refresh(SERVER);
       }
     }
-    console.log("Loop end.");
+    console.log(COLORS.blue("Loop end."));
   });
 }
 
-CLIENT.once("ready", async () => {
-  console.log(`Node.JS est connecté avec le bot : ${CLIENT.user.username}.`);
+// Si un utilisateur envoie un message.
+DISCORD.client.on("messageCreate", async (message) => {
+  // On ignore les messages du bot.
+  if (message.author.bot) return;
+
+  // On vérifie que l'utilisateur a les permissions d'administrateur.
+  if (
+    ((!DEV_MODE && message.content == "!ebp_refresh") ||
+      (DEV_MODE && message.content == "!dev_ebp_refresh")) &&
+    message.member.permissions.has("ADMINISTRATOR")
+  ) {
+    const SERVER = DISCORD._getServers().find((x) => x.id == message.guildId);
+
+    const CHANNEL = Array.from(
+      SERVER.channels.cache.filter((channel) => channel.id == message.channelId)
+    ).map((x) => x[1]);
+    if (SERVER && CHANNEL.length == 1) {
+      console.log(
+        `"${message.author.globalName}" asked for a manual refresh for the: "${SERVER.name}" server.`
+      );
+      refresh(SERVER);
+    }
+    DISCORD.deleteMessage(message);
+  }
+  // Si l'administrateur demande la liste des serveurs utilisant le bot.
+  else if (message.content == "!ebp_admin_list") {
+    if (message.author.id == 195958479394045952 /* HeyHeyChicken */) {
+      const SERVERS = DISCORD._getServers().map(
+        (server) => server.name + " (" + server.id + ")"
+      );
+      console.log(SERVERS);
+      message.delete();
+    }
+    DISCORD.deleteMessage(message);
+  }
+  // Si l'administrateur du bot force le refresh d'un serveur.
+  else if (message.content.startsWith("!ebp_admin_refresh ")) {
+    if (message.author.id == 195958479394045952 /* HeyHeyChicken */) {
+      checkWeaponsDataFromAPI(async () => {
+        const SERVER_ID = message.content.split(" ").at(-1);
+        const SERVER = DISCORD._getServers().find(
+          (server) => server.id == SERVER_ID
+        );
+        if (SERVER) {
+          const CHANNELS = Array.from(
+            SERVER.channels.cache.filter(
+              (channel) =>
+                channel.name &&
+                WEAPONS_CHANNEL_NAMES.some((keyword) =>
+                  channel.name.toLowerCase().includes(keyword[0].toLowerCase())
+                )
+            )
+          );
+          if (CHANNELS.length == 1) {
+            const MESSAGES = await DISCORD.getOldMessages(CHANNELS[0][1]);
+            for (let message of MESSAGES) {
+              await DISCORD.deleteMessage(message);
+            }
+            refresh(SERVER);
+          }
+          //!ebp_admin_refresh 862027894401925130
+        }
+        DISCORD.deleteMessage(message);
+      });
+    }
+  }
+  // Si l'administrateur du bot force la synchronisation avec l'API.
+  else if (message.content == "!ebp_admin_sync") {
+    if (message.author.id == 195958479394045952 /* HeyHeyChicken */) {
+      checkWeaponsDataFromAPI(() => {
+        DISCORD.deleteMessage(message);
+      });
+    }
+  }
+});
+
+DISCORD.client.once("ready", async () => {
+  console.log(
+    `Node.JS est connecté avec le bot : ${DISCORD.client.user.username}.`
+  );
 
   AXIOS.get(API_URL + "weapons_urls").then((response2) => {
     weaponsUrls = response2.data;
@@ -298,4 +346,4 @@ CLIENT.once("ready", async () => {
   });
 });
 
-CLIENT.login(SETTINGS.settings.discord_bot_token);
+DISCORD.client.login(SETTINGS.settings.discord_bot_token);
