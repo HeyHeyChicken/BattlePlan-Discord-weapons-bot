@@ -18,7 +18,12 @@
 
 1. Click here : [Install EBP's Discord server bot](https://discord.com/oauth2/authorize?client_id=1295696799839031318&permissions=0&integration_type=0&scope=bot).
 2. Click on the "Authorize" button.
-3. Create a channel and add this tag in it's topic: **#EBP_WEAPONS_BOT(en)** (<img width="20px" src="https://evabattleplan.com/wp-content/uploads/en.png">), or **#EBP_WEAPONS_BOT(fr)** (<img width="20px" src="https://evabattleplan.com/wp-content/uploads/fr.png">), or **#EBP_WEAPONS_BOT(es)** (<img width="20px" src="https://evabattleplan.com/wp-content/uploads/es.png">) in your Discord server.
+3. Create a channel and add this tag in it's topic:
+
+- <img width="20px" src="https://evabattleplan.com/wp-content/uploads/en.png"> #EBP_WEAPONS_BOT(en)
+- <img width="20px" src="https://evabattleplan.com/wp-content/uploads/fr.png"> #EBP_WEAPONS_BOT(fr)
+- <img width="20px" src="https://evabattleplan.com/wp-content/uploads/es.png"> #EBP_WEAPONS_BOT(es)
+
 4. Click on the cog of this channel.
 5. In the "Permission" tab, in the "Advanced permissions" section, remove all permissions and add this specific permissions to "@everyone" users :
    - See the channel
