@@ -31,7 +31,9 @@ const DISCORD = new Discord(DEV_MODE);
 const DATABASE = new Database(API_URL);
 const SCREENSHOTER = new Screenshoter(DISCORD, DATABASE);
 const WEB_PORT = DEV_MODE ? 3001 : 3000;
-const I18N = JSON.parse(FS.readFileSync("i18n.json", "utf8"));
+const I18N = JSON.parse(
+  FS.readFileSync(PATH.join(__dirname, "..", "i18n.json"), "utf8")
+);
 
 //#endregion
 
