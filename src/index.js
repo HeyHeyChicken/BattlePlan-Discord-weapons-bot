@@ -93,126 +93,130 @@ async function refresh(server) {
     (channel) => channel.topic && channel.topic.includes("#EBP_WEAPONS_BOT(")
   );
 
-  for (const CHANNEL of WEAPONS_CHANNELS) {
-    const LANGUAGE = CHANNEL.topic
-      .split("#EBP_WEAPONS_BOT(")
-      .at(-1)
-      .slice(0, 2)
-      .toLowerCase();
+  if (WEAPONS_CHANNELS.length) {
+    for (const CHANNEL of WEAPONS_CHANNELS) {
+      const LANGUAGE = CHANNEL.topic
+        .split("#EBP_WEAPONS_BOT(")
+        .at(-1)
+        .slice(0, 2)
+        .toLowerCase();
 
-    console.log(`            Channel: "${CHANNEL.name}"`);
+      console.log(`            Channel: "${CHANNEL.name}"`);
 
-    let OLD_MESSAGES = await DISCORD.getOldMessages(CHANNEL);
+      let OLD_MESSAGES = await DISCORD.getOldMessages(CHANNEL);
 
-    // On filtre les anciens messages pour ne garder que les messages envoyés par le BOT.
-    const OLD_BOT_MESSAGES = OLD_MESSAGES.filter(
-      (x) =>
-        x.author.bot == true &&
-        x.author.username == DISCORD.client.user.username &&
-        x.author.discriminator == DISCORD.client.user.discriminator
-    );
-    let nbMessageSend = 0; // Cette variable représente le nombre de messages envoyés sur le channel.
+      // On filtre les anciens messages pour ne garder que les messages envoyés par le BOT.
+      const OLD_BOT_MESSAGES = OLD_MESSAGES.filter(
+        (x) =>
+          x.author.bot == true &&
+          x.author.username == DISCORD.client.user.username &&
+          x.author.discriminator == DISCORD.client.user.discriminator
+      );
+      let nbMessageSend = 0; // Cette variable représente le nombre de messages envoyés sur le channel.
 
-    for (const WEAPON of weapons) {
-      const DATE = new Date(WEAPON.date);
-      const DATE_STRING =
-        ("0" + DATE.getDate()).slice(-2) +
-        "/" +
-        ("0" + DATE.getMonth()).slice(-2) +
-        "/" +
-        DATE.getFullYear() +
-        " " +
-        ("0" + DATE.getHours()).slice(-2) +
-        ":" +
-        ("0" + DATE.getMinutes()).slice(-2);
-      let allowAddNewWeapon = true;
+      for (const WEAPON of weapons) {
+        const DATE = new Date(WEAPON.date);
+        const DATE_STRING =
+          ("0" + DATE.getDate()).slice(-2) +
+          "/" +
+          ("0" + DATE.getMonth()).slice(-2) +
+          "/" +
+          DATE.getFullYear() +
+          " " +
+          ("0" + DATE.getHours()).slice(-2) +
+          ":" +
+          ("0" + DATE.getMinutes()).slice(-2);
+        let allowAddNewWeapon = true;
 
-      const OLD_BOT_MESSAGE = OLD_BOT_MESSAGES.find(
-        (message) =>
-          message.embeds[0] &&
-          message.embeds[0].title == WEAPON.name.toUpperCase()
-      ); // On cherche un ancien message en rapport avec cette arme.
+        const OLD_BOT_MESSAGE = OLD_BOT_MESSAGES.find(
+          (message) =>
+            message.embeds[0] &&
+            message.embeds[0].title == WEAPON.name.toUpperCase()
+        ); // On cherche un ancien message en rapport avec cette arme.
 
-      const IMAGE = await DATABASE.selectImage(WEAPON.name, LANGUAGE);
-      if (IMAGE) {
-        if (OLD_BOT_MESSAGE) {
-          allowAddNewWeapon = false;
-          if (OLD_BOT_MESSAGE.embeds[0]) {
-            OLD_DATE_STRING = OLD_BOT_MESSAGE.embeds[0].footer.text;
-            // On verrifie que les données de l'arme sont à jour sur ce channel.
-            if (DATE_STRING != OLD_DATE_STRING) {
-              try {
-                await await OLD_BOT_MESSAGE.edit({
-                  embeds: [
-                    embedBuilder(
-                      WEAPON.name,
-                      DATE_STRING,
-                      IMAGE.url,
-                      weaponsUrls[LANGUAGE] + "?w=" + encodeURI(WEAPON.name)
-                    ),
-                  ],
-                });
-              } catch (e) {
-                console.error(
-                  `        Impossible de modifier le messages (Server: "${server.name}", channel: "${CHANNEL.name}").`,
-                  e
-                );
+        const IMAGE = await DATABASE.selectImage(WEAPON.name, LANGUAGE);
+        if (IMAGE) {
+          if (OLD_BOT_MESSAGE) {
+            allowAddNewWeapon = false;
+            if (OLD_BOT_MESSAGE.embeds[0]) {
+              OLD_DATE_STRING = OLD_BOT_MESSAGE.embeds[0].footer.text;
+              // On verrifie que les données de l'arme sont à jour sur ce channel.
+              if (DATE_STRING != OLD_DATE_STRING) {
+                try {
+                  await await OLD_BOT_MESSAGE.edit({
+                    embeds: [
+                      embedBuilder(
+                        WEAPON.name,
+                        DATE_STRING,
+                        IMAGE.url,
+                        weaponsUrls[LANGUAGE] + "?w=" + encodeURI(WEAPON.name)
+                      ),
+                    ],
+                  });
+                } catch (e) {
+                  console.error(
+                    `        Impossible de modifier le messages (Server: "${server.name}", channel: "${CHANNEL.name}").`,
+                    e
+                  );
+                }
               }
             }
           }
-        }
-        if (allowAddNewWeapon) {
-          // On envoie un message contenant les dernières infos de l'arme.
+          if (allowAddNewWeapon) {
+            // On envoie un message contenant les dernières infos de l'arme.
 
-          if (
-            await DISCORD.sendMessage(
-              CHANNEL,
-              "",
-              embedBuilder(
-                WEAPON.name,
-                DATE_STRING,
-                IMAGE.url,
-                weaponsUrls[LANGUAGE] + "?w=" + encodeURI(WEAPON.name)
+            if (
+              await DISCORD.sendMessage(
+                CHANNEL,
+                "",
+                embedBuilder(
+                  WEAPON.name,
+                  DATE_STRING,
+                  IMAGE.url,
+                  weaponsUrls[LANGUAGE] + "?w=" + encodeURI(WEAPON.name)
+                )
               )
-            )
-          ) {
-            nbMessageSend++;
+            ) {
+              nbMessageSend++;
+            }
           }
-        }
-      } else {
-        console.error(
-          `Can't find image (Weapon: "${WEAPON.name}", language: "${LANGUAGE}").`
-        );
-      }
-    }
-
-    // On envoie le message final.
-    const OLD_FINAL = OLD_BOT_MESSAGES.filter((x) =>
-      x.content.startsWith("─────────────")
-    );
-    if (nbMessageSend > 0 || OLD_FINAL.length == 0) {
-      OLD_FINAL.forEach((message) => {
-        try {
-          message.delete();
-        } catch (e) {
+        } else {
           console.error(
-            `        Impossible de supprimer le messages (Server: "${server.name}", channel: "${CHANNEL.name}").`,
-            e
+            `Can't find image (Weapon: "${WEAPON.name}", language: "${LANGUAGE}").`
           );
         }
-      });
-      await CHANNEL.send({
-        content:
-          "───────────────────────────────────\n" +
-          i18n("source", LANGUAGE) +
-          ": " +
-          `<${weaponsUrls[LANGUAGE]}>` +
-          "\n" +
-          i18n("install", LANGUAGE) +
-          ": " +
-          `<https://github.com/HeyHeyChicken/BattlePlan-Discord-weapons-bot>`,
-      });
+      }
+
+      // On envoie le message final.
+      const OLD_FINAL = OLD_BOT_MESSAGES.filter((x) =>
+        x.content.startsWith("─────────────")
+      );
+      if (nbMessageSend > 0 || OLD_FINAL.length == 0) {
+        OLD_FINAL.forEach((message) => {
+          try {
+            message.delete();
+          } catch (e) {
+            console.error(
+              `        Impossible de supprimer le messages (Server: "${server.name}", channel: "${CHANNEL.name}").`,
+              e
+            );
+          }
+        });
+        await CHANNEL.send({
+          content:
+            "───────────────────────────────────\n" +
+            i18n("source", LANGUAGE) +
+            ": " +
+            `<${weaponsUrls[LANGUAGE]}>` +
+            "\n" +
+            i18n("install", LANGUAGE) +
+            ": " +
+            `<https://github.com/HeyHeyChicken/BattlePlan-Discord-weapons-bot>`,
+        });
+      }
     }
+  } else {
+    console.error(`No weapon channel found in the "${server.name}" server.`);
   }
 }
 
