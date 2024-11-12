@@ -88,7 +88,6 @@ class Database {
     let done = 0;
     AXIOS.get(this._apiURL + "weapons").then(async (response) => {
       const WEAPONS = response.data;
-      //response.data[0].date = "1993-12-22 12:12:00";
       for (let weapon of WEAPONS) {
         this._setWeapon(weapon.name, weapon.date, () => {
           this._selectWeapon(weapon.name, (w) => {

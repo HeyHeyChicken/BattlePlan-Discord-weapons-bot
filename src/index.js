@@ -108,7 +108,7 @@ async function refresh(server) {
       // On filtre les anciens messages pour ne garder que les messages envoyés par le BOT.
       const OLD_BOT_MESSAGES = OLD_MESSAGES.filter(
         (x) =>
-          x.author.bot == true &&
+          x.author.bot &&
           x.author.username == DISCORD.client.user.username &&
           x.author.discriminator == DISCORD.client.user.discriminator
       );
@@ -139,7 +139,7 @@ async function refresh(server) {
           if (OLD_BOT_MESSAGE) {
             allowAddNewWeapon = false;
             if (OLD_BOT_MESSAGE.embeds[0]) {
-              OLD_DATE_STRING = OLD_BOT_MESSAGE.embeds[0].footer.text;
+              const OLD_DATE_STRING = OLD_BOT_MESSAGE.embeds[0].footer.text;
               // On verrifie que les données de l'arme sont à jour sur ce channel.
               if (DATE_STRING != OLD_DATE_STRING) {
                 try {
