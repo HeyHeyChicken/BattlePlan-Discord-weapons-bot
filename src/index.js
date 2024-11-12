@@ -316,7 +316,7 @@ DISCORD.client.on("messageCreate", async (message) => {
             }
             refresh(SERVER);
           }
-          //!ebp_admin_refresh 862027894401925130
+          // !ebp_admin_refresh 862027894401925130
         }
         DISCORD.deleteMessage(message);
       });
