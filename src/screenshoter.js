@@ -72,7 +72,8 @@ class Screenshoter {
         const SCREEN_WIDTH = 1920 * 0.9;
         const SCREEN_HEIGHT = 1080 * 0.9;
         const BROWSER = await PUPPETEER.launch({
-          args: ["--no-sandbox"],
+          executablePath: '/usr/bin/chromium', // spécifiez le chemin de Chromium
+          args: ['--no-sandbox', '--disable-setuid-sandbox'],
           headless: "shell", // Pour ne pas afficher le navigateur.
           defaultViewport: null, // Nécessaire pour définir la taille.
         });

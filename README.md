@@ -62,6 +62,11 @@ cd BattlePlan-Discord-weapons-bot
 npm install
 ```
 
+1. Docker
+```
+docker compose build --no-cache; docker-compose up -d
+```
+
 ## 🚀 Usage
 
 1. Launch this command.
