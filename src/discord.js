@@ -57,6 +57,7 @@ class Discord {
    * @returns Liste de messages du salon.
    */
   async getOldMessages(channel, limit = 100) {
+    console.log(`                Trying to get old messages...`);
     let oldMessages = [];
     try {
       oldMessages = await channel.messages.fetch({ limit: limit }); // On récupère les anciens messages envoyés sur le channel.
@@ -66,7 +67,9 @@ class Discord {
         e
       );
     }
-    return Array.from(oldMessages).map((x) => x[1]);
+    const BACK = Array.from(oldMessages).map((x) => x[1]);
+    console.log(`                Got old messages (${BACK.length})`);
+    return BACK;
   }
 
   //#endregion

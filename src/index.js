@@ -102,9 +102,7 @@ async function refresh(server) {
         .toLowerCase();
 
       console.log(`            Channel: "${CHANNEL.name}"`);
-      console.log(`                Trying to get old messages...`);
       let OLD_MESSAGES = await DISCORD.getOldMessages(CHANNEL);
-      console.log(`                Got old messages (${OLD_MESSAGES.length})`);
 
       // On filtre les anciens messages pour ne garder que les messages envoyés par le BOT.
       const OLD_BOT_MESSAGES = OLD_MESSAGES.filter(
