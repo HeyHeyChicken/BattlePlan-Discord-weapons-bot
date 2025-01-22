@@ -315,8 +315,12 @@ DISCORD.client.on("messageCreate", async (message) => {
               await DISCORD.deleteMessage(message);
             }
             refresh(SERVER);
+          } else {
+            console.error('Aucun salon "Armes" dans le serveur Discord.');
           }
           // !ebp_admin_refresh 862027894401925130
+        } else {
+          console.error("Aucun serveur Discord utilisant cet ID trouvé.");
         }
         DISCORD.deleteMessage(message);
       });
