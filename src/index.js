@@ -215,6 +215,7 @@ async function refresh(server) {
         });
       }
     }
+    console.log("Refresh finnished!");
   } else {
     console.error(`No weapon channel found in the "${server.name}" server.`);
   }
