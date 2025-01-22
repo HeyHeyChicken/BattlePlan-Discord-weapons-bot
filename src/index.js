@@ -349,6 +349,19 @@ DISCORD.client.on("messageCreate", async (message) => {
       loop();
     }
   }
+  // Si l'administrateur du bot souhaite déterminer le pseudo du propriétaire d'un serveur Discord.
+  else if (message.content.startsWith("!ebp_server_owner ")) {
+    if (message.author.id == 195958479394045952 /* HeyHeyChicken */) {
+      const SERVER_ID = message.content.split(" ").at(-1);
+        const SERVER = DISCORD._getServers().find(
+          (server) => server.id == SERVER_ID
+        );
+        if (SERVER) {
+          const OWNER = await SERVER.fetchOwner();
+          console.log(`Pseudo : ${OWNER.user.username}`);
+        }
+    }
+  }
 });
 
 DISCORD.client.once("ready", async () => {
