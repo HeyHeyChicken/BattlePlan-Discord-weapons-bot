@@ -201,17 +201,29 @@ async function refresh(server) {
             );
           }
         });
-        await CHANNEL.send({
-          content:
-            "───────────────────────────────────\n" +
-            i18n("source", LANGUAGE) +
-            ": " +
-            `<${weaponsUrls[LANGUAGE]}>` +
-            "\n" +
-            i18n("install", LANGUAGE) +
-            ": " +
-            `<https://github.com/HeyHeyChicken/BattlePlan-Discord-weapons-bot>`,
-        });
+        try{
+          await CHANNEL.send({
+            content:
+              "───────────────────────────────────\n" +
+              i18n("source", LANGUAGE) +
+              ": " +
+              `<${weaponsUrls[LANGUAGE]}>` +
+              "\n" +
+              i18n("install", LANGUAGE) +
+              ": " +
+              `<https://github.com/HeyHeyChicken/BattlePlan-Discord-weapons-bot>`,
+          });
+        } catch (e) {
+          console.error(
+            `        Impossible d'envoyer un message (Server: "${
+              server.name
+            }", channel: "${CHANNEL.name}").`,
+            e,
+            content,
+            embed,
+            file
+          );
+        }
       }
     }
     console.log("Refresh finnished!");
