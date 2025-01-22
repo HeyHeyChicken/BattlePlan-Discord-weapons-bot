@@ -218,10 +218,7 @@ async function refresh(server) {
             `        Impossible d'envoyer un message (Server: "${
               server.name
             }", channel: "${CHANNEL.name}").`,
-            e,
-            content,
-            embed,
-            file
+            e
           );
         }
       }
