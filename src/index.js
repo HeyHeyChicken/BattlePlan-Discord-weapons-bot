@@ -330,6 +330,12 @@ DISCORD.client.on("messageCreate", async (message) => {
       });
     }
   }
+  // Si l'administrateur du bot force le refresh de tout les serveurs Discord.
+  else if (message.content == "!ebp_refresh_all") {
+    if (message.author.id == 195958479394045952 /* HeyHeyChicken */) {
+      loop();
+    }
+  }
 });
 
 DISCORD.client.once("ready", async () => {
