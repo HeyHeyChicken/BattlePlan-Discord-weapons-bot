@@ -30,9 +30,9 @@ class Screenshoter {
             (language + "_" + weapon.name).toUpperCase() + ".png"
           ),
           weaponsUrls[language] +
-            "?w=" +
+            "/" +
             weapon.name.toLowerCase() +
-            "&discord_bot",
+            "?discord=1",
         ]);
       }
     }
@@ -72,8 +72,8 @@ class Screenshoter {
         const SCREEN_WIDTH = 1920 * 0.9;
         const SCREEN_HEIGHT = 1080 * 0.9;
         const BROWSER = await PUPPETEER.launch({
-          executablePath: '/usr/bin/chromium', // spécifiez le chemin de Chromium
-          args: ['--no-sandbox', '--disable-setuid-sandbox'],
+          executablePath: "/usr/bin/chromium", // spécifiez le chemin de Chromium
+          args: ["--no-sandbox", "--disable-setuid-sandbox"],
           headless: "shell", // Pour ne pas afficher le navigateur.
           defaultViewport: null, // Nécessaire pour définir la taille.
         });
