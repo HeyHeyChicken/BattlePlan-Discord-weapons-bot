@@ -16,7 +16,7 @@ const Discord = require("./discord");
 //#region Variables
 
 const DEV_MODE = process.argv.slice(2)[0] == "true";
-const API_URL = "https://evabattleplan.com/en/api-discord/?route="; // URL de l'API RES d'EBP - EVA Battle Plan.
+const API_URL = "https://evabattleplan.com/back/api-discord/?route="; // URL de l'API RES d'EBP - EVA Battle Plan.
 
 let weapons; // Ici sera stockée la liste des armes provenant de l'API.
 let weaponsUrls; // Ici sera stockée la liste des URL de la page "Armes".
@@ -201,7 +201,7 @@ async function refresh(server) {
             );
           }
         });
-        try{
+        try {
           await CHANNEL.send({
             content:
               "───────────────────────────────────\n" +
@@ -215,9 +215,7 @@ async function refresh(server) {
           });
         } catch (e) {
           console.error(
-            `        Impossible d'envoyer un message (Server: "${
-              server.name
-            }", channel: "${CHANNEL.name}").`,
+            `        Impossible d'envoyer un message (Server: "${server.name}", channel: "${CHANNEL.name}").`,
             e
           );
         }
@@ -353,13 +351,13 @@ DISCORD.client.on("messageCreate", async (message) => {
   else if (message.content.startsWith("!ebp_server_owner ")) {
     if (message.author.id == 195958479394045952 /* HeyHeyChicken */) {
       const SERVER_ID = message.content.split(" ").at(-1);
-        const SERVER = DISCORD._getServers().find(
-          (server) => server.id == SERVER_ID
-        );
-        if (SERVER) {
-          const OWNER = await SERVER.fetchOwner();
-          console.log(`Pseudo : ${OWNER.user.username}`);
-        }
+      const SERVER = DISCORD._getServers().find(
+        (server) => server.id == SERVER_ID
+      );
+      if (SERVER) {
+        const OWNER = await SERVER.fetchOwner();
+        console.log(`Pseudo : ${OWNER.user.username}`);
+      }
     }
   }
 });
