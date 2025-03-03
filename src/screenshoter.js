@@ -56,7 +56,6 @@ class Screenshoter {
    */
   async download_screenshots(weapons, urls) {
     console.log("    Downloading screenshots...");
-    console.log(urls);
 
     const DISCORD_SERVER = this._discord
       ._getServers()
