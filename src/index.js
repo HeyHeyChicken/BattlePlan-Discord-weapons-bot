@@ -16,7 +16,7 @@ const Discord = require("./discord");
 //#region Variables
 
 const DEV_MODE = process.argv.slice(2)[0] == "true";
-const API_URL = "https://evabattleplan.com/back/api-discord/?route="; // URL de l'API RES d'EBP - EVA Battle Plan.
+const API_URL = "https://evabattleplan.com/back/api-discord/?route="; // URL de l'API REST d'EBP - EVA Battle Plan.
 
 let weapons; // Ici sera stockée la liste des armes provenant de l'API.
 let weaponsUrls; // Ici sera stockée la liste des URL de la page "Armes".
