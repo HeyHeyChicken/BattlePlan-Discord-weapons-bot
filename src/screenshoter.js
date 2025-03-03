@@ -31,7 +31,7 @@ class Screenshoter {
           ),
           weaponsUrls[language] +
             "/" +
-            weapon.name.toLowerCase() +
+            weapon.name.toLowerCase().replaceAll(" ", "-") +
             "?discord=1",
         ]);
       }
