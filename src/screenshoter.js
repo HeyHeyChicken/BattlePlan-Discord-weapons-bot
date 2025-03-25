@@ -107,6 +107,7 @@ class Screenshoter {
                 "0" + urls.length
               ).slice(-2)}) Downloading: ${urls[i][1]}`
             );
+            console.log("            Going on the page...");
 
             await PAGE.goto(urls[i][1], { waitUntil: "networkidle0" });
             console.log("            On the page.");
