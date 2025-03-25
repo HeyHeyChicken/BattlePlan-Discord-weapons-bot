@@ -109,12 +109,14 @@ class Screenshoter {
             );
 
             await PAGE.goto(urls[i][1], { waitUntil: "networkidle0" });
+            console.log("            On the page.");
             await this._delay(1000); // On attends par mesure de sécurité que le loader soit parti.
             // On prends une capture d'écran
             await PAGE.screenshot({
               path: urls[i][0],
               fullPage: false,
             });
+            console.log("            Screenshot took.");
 
             if (
               await this._discord.deleteWeaponMessage(
