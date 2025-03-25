@@ -109,7 +109,7 @@ class Screenshoter {
             );
             console.log("            Going on the page...");
 
-            await PAGE.goto(urls[i][1], { waitUntil: "networkidle0" });
+            await PAGE.goto(urls[i][1], { waitUntil: "domcontentloaded" });
             console.log("            On the page.");
             await this._delay(1000); // On attends par mesure de sécurité que le loader soit parti.
             // On prends une capture d'écran
