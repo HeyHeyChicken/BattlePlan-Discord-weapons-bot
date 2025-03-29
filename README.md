@@ -5,7 +5,7 @@
 
 **EBP's Discord weapons bot** is an open-source bot that will automatically update the characteristics of EVA weapons on your Discord server.<br>
 
-[![Discord](https://discord.evabattleplan.com/)](https://discord.evabattleplan.com/)
+[![Discord](https://discord-weapons-bot.ebp.gg/)](https://discord-weapons-bot.ebp.gg/)
 
 <img width="410px" src="https://raw.githubusercontent.com/HeyHeyChicken/BattlePlan-Discord-weapons-bot/refs/heads/main/.github/screenshot.jpg">
 </div>
