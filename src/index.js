@@ -36,7 +36,7 @@ const I18N = JSON.parse(
 
 /**
  * Ce serveur web indique à l'utilisateur si le bot est en ligne.
- + URL : https://discord.evabattleplan.com/
+ + URL : https://discord-weapons-bot.ebp.gg/
  */
 const SERVER = HTTP.createServer((req, res) => {
   if (req.url === "/") {
@@ -46,7 +46,7 @@ const SERVER = HTTP.createServer((req, res) => {
       // Si le chargement de l'image rencontre un souci, on affiche un texte.
       if (err) {
         res.writeHead(200, { "Content-Type": "text/html" });
-        res.end("EBP - EVA Battle Plan's Discord bot is <b>online</b>.");
+        res.end("EBP's Discord weapons bot is <b>online</b>.");
         return;
       }
       // On affiche un SVG indiquant que le serveur est en ligne.
